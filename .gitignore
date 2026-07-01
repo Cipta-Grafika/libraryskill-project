@@ -20,18 +20,44 @@
 # production
 /build
 
-# misc
+# macOS specific
 .DS_Store
+**/.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# misc
 *.pem
+*.key
+*.cert
+*.crt
+
+# local database files
+*.sqlite
+*.sqlite-journal
+*.db
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
+.env.*
+!.env.example
+!.env.template
 
 # vercel
 .vercel
@@ -39,3 +65,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# docs
+/docs
+./docs
+
+/src/generated/prisma
