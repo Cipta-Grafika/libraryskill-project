@@ -1,0 +1,195 @@
+/* src/styles/login.css */
+
+:root {
+  --auth-bg: #f4f4f5; /* zinc-100 */
+  --auth-card-bg: #ffffff;
+  --auth-card-border: #e4e4e7; /* zinc-200 */
+  --auth-text-primary: #18181b; /* zinc-900 */
+  --auth-text-secondary: #71717a; /* zinc-500 */
+  --auth-input-bg: #ffffff;
+  --auth-input-border: #d4d4d8; /* zinc-300 */
+  --auth-input-text: #18181b;
+  --auth-error-bg: #fef2f2;
+  --auth-error-text: #dc2626;
+  --auth-error-border: #fecaca;
+  --auth-link: var(--primary-600);
+}
+
+:root[class~="dark"], .dark {
+  --auth-bg: #000000;
+  --auth-card-bg: #09090b; /* zinc-950 */
+  --auth-card-border: #27272a; /* zinc-800 */
+  --auth-text-primary: #fafafa; /* zinc-50 */
+  --auth-text-secondary: #a1a1aa; /* zinc-400 */
+  --auth-input-bg: #09090b;
+  --auth-input-border: #3f3f46; /* zinc-700 */
+  --auth-input-text: #fafafa;
+  --auth-error-bg: rgba(127, 29, 29, 0.3); /* red-900/30 */
+  --auth-error-text: #f87171; /* red-400 */
+  --auth-error-border: rgba(153, 27, 27, 0.5); /* red-800/50 */
+  --auth-link: var(--primary-400);
+}
+
+/* Reusable Auth Classes */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--auth-bg);
+  padding: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 28rem; /* max-w-md */
+  background-color: var(--auth-card-bg);
+  border-radius: 0.75rem; /* rounded-xl */
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  border: 1px solid var(--auth-card-border);
+  transition: all 0.3s ease;
+}
+
+.auth-card-inner {
+  padding: 2rem; /* p-8 */
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-title {
+  font-size: 1.875rem; /* text-3xl */
+  line-height: 2.25rem;
+  font-weight: 700;
+  color: var(--auth-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+  color: var(--auth-text-secondary);
+}
+
+.auth-error {
+  background-color: var(--auth-error-bg);
+  color: var(--auth-error-text);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--auth-error-border);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.auth-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--auth-text-primary);
+}
+
+.auth-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-input, .auth-select {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--auth-input-border);
+  background-color: var(--auth-input-bg);
+  color: var(--auth-input-text);
+  transition: all 0.2s;
+}
+
+.auth-input:focus, .auth-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary-500);
+  border-color: transparent;
+}
+
+.auth-input-icon-btn {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--auth-text-secondary);
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.auth-input-icon-btn:hover {
+  color: var(--auth-text-primary);
+}
+
+.auth-input-icon-btn:focus {
+  outline: none;
+}
+
+.auth-button {
+  width: 100%;
+  background-color: var(--primary-500);
+  color: white;
+  font-weight: 500;
+  padding: 0.625rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+  margin-top: 0.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.auth-button:hover:not(:disabled) {
+  background-color: var(--primary-600);
+}
+
+.auth-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary-500), 0 0 0 4px var(--auth-bg);
+}
+
+.auth-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--auth-text-secondary);
+}
+
+.auth-link {
+  color: var(--auth-link);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-select {
+  appearance: none;
+}

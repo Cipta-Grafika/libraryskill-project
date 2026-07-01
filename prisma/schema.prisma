@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  AUTHOR
+  REVIEWER
+  SUPERADMIN
+}
+
+enum SkillStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  PUBLISHED
+  REJECTED
+  ARCHIVED
+}
+
+model User {
+  id       String   @id @default(cuid())
+  name     String
+  email    String   @unique
+  password String?
+  role     UserRole @default(AUTHOR)
+
+  bio  String?
+  slug String  @unique
+
+  skills Skill[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Skill {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String
+  roleSlug    String
+  description String?     @db.Text
+  content     String      @db.Text
+  outputModes String[] // Base array for features like 'generate', 'documentation', dll.
+  tags        String[] // Kebutuhan klasifikasi dan pencarian SEO
+  status      SkillStatus @default(DRAFT)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([roleSlug, slug])
+  @@index([status])
+  @@index([authorId])
+  @@map("skills")
+}
