@@ -21,14 +21,15 @@ export default async function AdminUsersPage() {
       email: true,
       role: true,
       createdAt: true,
+      updatedAt: true,
       slug: true,
       bio: true,
     }
   });
 
   return (
-      <div className="users-page">
-        <UsersClient initialUsers={users} />
-      </div>
+    <div className="users-page">
+      <UsersClient initialUsers={users} />
+    </div>
   );
 }

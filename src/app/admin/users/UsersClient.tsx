@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Search, Filter, Download, Upload, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { createUser } from "./actions";
+import { Search, Filter, Download, Upload, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
+import { createUser, updateUser } from "./actions";
 
 type User = {
   id: string;
@@ -12,6 +12,7 @@ type User = {
   slug: string;
   bio: string | null;
   createdAt: Date;
+  updatedAt: Date;
 };
 
 type SortConfig = {
@@ -39,8 +40,25 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalError, setModalError] = useState("");
+  const [alertConfig, setAlertConfig] = useState<{ type: 'success' | 'error'; title: string; message: string } | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const openAddModal = () => {
+    setEditingUser(null);
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (user: User) => {
+    setEditingUser(user);
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+    setIsModalOpen(true);
+  };
 
   // Process Users: Filter -> Sort -> Paginate
   const processedUsers = useMemo(() => {
@@ -113,21 +131,27 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
     setSelectedIds(newSet);
   };
 
-  const handleAddUser = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmitUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setModalError("");
 
     const formData = new FormData(e.currentTarget);
     
-    const result = await createUser(formData);
-    
-    if (result?.error) {
-      setModalError(result.error);
-      setIsSubmitting(false);
+    let result;
+    if (editingUser) {
+      result = await updateUser(editingUser.id, formData);
     } else {
-      setIsModalOpen(false);
-      setIsSubmitting(false);
+      result = await createUser(formData);
+    }
+    
+    setIsModalOpen(false);
+    setIsSubmitting(false);
+
+    if (result?.error) {
+      setAlertConfig({ type: 'error', title: 'Action Failed', message: result.error });
+    } else {
+      setEditingUser(null);
+      setAlertConfig({ type: 'success', title: 'Success', message: 'User record has been successfully saved.' });
       // Data will refresh via revalidatePath
     }
   };
@@ -140,7 +164,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
           <button className="users-btn users-btn-outline"><Filter size={14}/> Filters</button>
           <button className="users-btn users-btn-outline"><Upload size={14}/> Import</button>
           <button className="users-btn users-btn-outline"><Download size={14}/> Export</button>
-          <button className="users-btn users-btn-primary" onClick={() => setIsModalOpen(true)}>
+          <button className="users-btn users-btn-primary" onClick={openAddModal}>
             <Plus size={14}/> Add
           </button>
         </div>
@@ -212,7 +236,10 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
                 <th className="users-th sortable" style={{ width: '10%', textOverflow: 'clip' }} onClick={() => handleSort('createdAt')}>
                   <div className="users-th-inner">Created {renderSortIcon("createdAt")}</div>
                 </th>
-                <th className="users-th text-right" style={{ width: '10%' }}>Details</th>
+                <th className="users-th sortable" style={{ width: '10%', textOverflow: 'clip' }} onClick={() => handleSort('updatedAt')}>
+                  <div className="users-th-inner">Updated {renderSortIcon("updatedAt")}</div>
+                </th>
+                <th className="users-th text-right" style={{ width: '10%' }}>#</th>
               </tr>
             </thead>
             <tbody>
@@ -239,8 +266,9 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
                       <span className="users-td-role">{u.role.toLowerCase()}</span>
                     </td>
                     <td className="users-td" style={{ textOverflow: 'clip' }}>{new Date(u.createdAt).toLocaleDateString()}</td>
+                    <td className="users-td" style={{ textOverflow: 'clip' }}>{new Date(u.updatedAt).toLocaleDateString()}</td>
                     <td className="users-td text-right">
-                      <button className="users-table-action-btn">Edit</button>
+                      <button className="users-table-action-btn" onClick={() => openEditModal(u)}>Edit</button>
                     </td>
                   </tr>
                 ))
@@ -274,37 +302,74 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
         <div className="modal-overlay" onClick={() => !isSubmitting && setIsModalOpen(false)}>
           <div className="modal-container" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2 className="modal-title">Add User Record</h2>
+              <h2 className="modal-title">{editingUser ? "Edit User Record" : "Add User Record"}</h2>
               <button className="modal-close-btn" onClick={() => !isSubmitting && setIsModalOpen(false)} disabled={isSubmitting}>
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleAddUser}>
+            <form onSubmit={handleSubmitUser}>
               <div className="modal-body">
-                {modalError && (
-                  <div className="mb-4 p-3 rounded-lg bg-red-100 text-red-700 text-sm border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
-                    {modalError}
-                  </div>
-                )}
-                
                 <div className="modal-form-group">
                   <label className="modal-label">Name</label>
-                  <input required type="text" name="name" className="modal-input" placeholder="e.g. John Doe" disabled={isSubmitting} />
+                  <input required type="text" name="name" defaultValue={editingUser?.name || ""} className="modal-input" placeholder="e.g. John Doe" disabled={isSubmitting} />
                 </div>
                 
                 <div className="modal-form-group">
                   <label className="modal-label">Email Address</label>
-                  <input required type="email" name="email" className="modal-input" placeholder="e.g. john@example.com" disabled={isSubmitting} />
+                  <input required type="email" name="email" defaultValue={editingUser?.email || ""} className="modal-input" placeholder="e.g. john@example.com" disabled={isSubmitting} />
                 </div>
                 
                 <div className="modal-form-group">
-                  <label className="modal-label">Password</label>
-                  <input required type="password" name="password" className="modal-input" placeholder="Minimum 6 characters" minLength={6} disabled={isSubmitting} />
+                  <label className="modal-label">
+                    Password {editingUser && <span className="text-xs text-zinc-500 font-normal">(Leave blank to keep unchanged)</span>}
+                  </label>
+                  <div className="relative">
+                    <input 
+                      type={showPassword ? "text" : "password"} 
+                      name="password" 
+                      className="modal-input w-full pr-10" 
+                      placeholder="Minimum 6 characters" 
+                      minLength={6} 
+                      disabled={isSubmitting}
+                      required={!editingUser}
+                    />
+                    <button 
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="modal-form-group">
+                  <label className="modal-label">
+                    Confirm Password {editingUser && <span className="text-xs text-zinc-500 font-normal">(Leave blank if password is unchanged)</span>}
+                  </label>
+                  <div className="relative">
+                    <input 
+                      type={showConfirmPassword ? "text" : "password"} 
+                      name="confirmPassword" 
+                      className="modal-input w-full pr-10" 
+                      placeholder="Confirm your password" 
+                      minLength={6} 
+                      disabled={isSubmitting}
+                      required={!editingUser}
+                    />
+                    <button 
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="modal-form-group mb-0">
                   <label className="modal-label">Role</label>
-                  <select name="role" className="modal-select" required disabled={isSubmitting}>
+                  <select name="role" defaultValue={editingUser?.role || "AUTHOR"} className="modal-select" required disabled={isSubmitting}>
                     <option value="AUTHOR">Author</option>
                     <option value="REVIEWER">Reviewer</option>
                     <option value="SUPERADMIN">Superadmin</option>
@@ -325,6 +390,34 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {alertConfig && (
+        <div className="alert-overlay" onClick={() => setAlertConfig(null)}>
+          <div className="alert-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="alert-header">
+              <div className="alert-title-container">
+                {alertConfig.type === 'success' ? (
+                  <CheckCircle2 className="alert-icon alert-icon-success" />
+                ) : (
+                  <AlertCircle className="alert-icon alert-icon-error" />
+                )}
+                <h3 className="alert-title">{alertConfig.title}</h3>
+              </div>
+              <button type="button" className="alert-close-btn" onClick={() => setAlertConfig(null)}>
+                <X size={16} />
+              </button>
+            </div>
+            <div className="alert-body">
+              <p className="alert-message">{alertConfig.message}</p>
+            </div>
+            <div className="alert-footer">
+              <button type="button" className="alert-btn alert-btn-primary" onClick={() => setAlertConfig(null)}>
+                Okay
+              </button>
+            </div>
           </div>
         </div>
       )}
