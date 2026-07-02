@@ -37,3 +37,40 @@ export async function createCategory(formData: FormData) {
     return { error: "Failed to create category" };
   }
 }
+
+export async function updateCategory(id: string, formData: FormData) {
+  try {
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
+
+    if (!name) {
+      return { error: "Name is required" };
+    }
+
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+
+    const existingCategory = await prisma.category.findUnique({
+      where: { slug },
+    });
+
+    if (existingCategory && existingCategory.id !== id) {
+      return { error: "Category with this name/slug already exists" };
+    }
+
+    await prisma.category.update({
+      where: { id },
+      data: {
+        name,
+        slug,
+        description: description || null,
+        updatedAt: new Date(),
+      },
+    });
+
+    revalidatePath("/admin/categories");
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating category:", error);
+    return { error: "Failed to update category" };
+  }
+}

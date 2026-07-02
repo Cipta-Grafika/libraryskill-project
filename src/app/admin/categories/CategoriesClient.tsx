@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Search, Filter, Download, Upload, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { createCategory } from "./actions";
+import { Search, Filter, Download, Upload, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CheckCircle2, AlertCircle } from "lucide-react";
+import { createCategory, updateCategory } from "./actions";
 
 type Category = {
   id: string;
@@ -10,6 +10,7 @@ type Category = {
   slug: string;
   description: string | null;
   createdAt: Date;
+  updatedAt: Date;
   _count?: {
     skills: number;
   };
@@ -36,8 +37,19 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalError, setModalError] = useState("");
+  const [alertConfig, setAlertConfig] = useState<{ type: 'success' | 'error'; title: string; message: string } | null>(null);
+
+  const openAddModal = () => {
+    setEditingCategory(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (category: Category) => {
+    setEditingCategory(category);
+    setIsModalOpen(true);
+  };
 
   const processedCategories = useMemo(() => {
     let filtered = categories;
@@ -103,21 +115,27 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
     setSelectedIds(newSet);
   };
 
-  const handleAddCategory = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmitCategory = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setModalError("");
 
     const formData = new FormData(e.currentTarget);
     
-    const result = await createCategory(formData);
-    
-    if (result?.error) {
-      setModalError(result.error);
-      setIsSubmitting(false);
+    let result;
+    if (editingCategory) {
+      result = await updateCategory(editingCategory.id, formData);
     } else {
-      setIsModalOpen(false);
-      setIsSubmitting(false);
+      result = await createCategory(formData);
+    }
+    
+    setIsModalOpen(false);
+    setIsSubmitting(false);
+
+    if (result?.error) {
+      setAlertConfig({ type: 'error', title: 'Action Failed', message: result.error });
+    } else {
+      setEditingCategory(null);
+      setAlertConfig({ type: 'success', title: 'Success', message: 'Category record has been successfully saved.' });
     }
   };
 
@@ -129,7 +147,7 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
           <button className="categories-btn categories-btn-outline"><Filter size={14}/> Filters</button>
           <button className="categories-btn categories-btn-outline"><Upload size={14}/> Import</button>
           <button className="categories-btn categories-btn-outline"><Download size={14}/> Export</button>
-          <button className="categories-btn categories-btn-primary" onClick={() => setIsModalOpen(true)}>
+          <button className="categories-btn categories-btn-primary" onClick={openAddModal}>
             <Plus size={14}/> Add
           </button>
         </div>
@@ -198,7 +216,10 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
                 <th className="categories-th sortable" style={{ width: '10%', textOverflow: 'clip' }} onClick={() => handleSort('createdAt')}>
                   <div className="categories-th-inner">Created {renderSortIcon("createdAt")}</div>
                 </th>
-                <th className="categories-th text-right" style={{ width: '10%' }}>Details</th>
+                <th className="categories-th sortable" style={{ width: '10%', textOverflow: 'clip' }} onClick={() => handleSort('updatedAt')}>
+                  <div className="categories-th-inner">Updated {renderSortIcon("updatedAt")}</div>
+                </th>
+                <th className="categories-th text-right" style={{ width: '10%' }}>#</th>
               </tr>
             </thead>
             <tbody>
@@ -224,8 +245,9 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
                       <span className="categories-td-role">{c._count?.skills || 0}</span>
                     </td>
                     <td className="categories-td" style={{ textOverflow: 'clip' }}>{new Date(c.createdAt).toLocaleDateString()}</td>
+                    <td className="categories-td" style={{ textOverflow: 'clip' }}>{new Date(c.updatedAt).toLocaleDateString()}</td>
                     <td className="categories-td text-right">
-                      <button className="categories-table-action-btn">Edit</button>
+                      <button className="categories-table-action-btn" onClick={() => openEditModal(c)}>Edit</button>
                     </td>
                   </tr>
                 ))
@@ -259,27 +281,21 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
         <div className="modal-overlay" onClick={() => !isSubmitting && setIsModalOpen(false)}>
           <div className="modal-container" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h2 className="modal-title">Add Category</h2>
+              <h2 className="modal-title">{editingCategory ? "Edit Category Record" : "Add Category Record"}</h2>
               <button className="modal-close-btn" onClick={() => !isSubmitting && setIsModalOpen(false)} disabled={isSubmitting}>
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleAddCategory}>
+            <form onSubmit={handleSubmitCategory}>
               <div className="modal-body">
-                {modalError && (
-                  <div className="mb-4 p-3 rounded-lg bg-red-100 text-red-700 text-sm border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
-                    {modalError}
-                  </div>
-                )}
-                
                 <div className="modal-form-group">
                   <label className="modal-label">Name</label>
-                  <input required type="text" name="name" className="modal-input" placeholder="e.g. Frontend Development" disabled={isSubmitting} />
+                  <input required type="text" name="name" defaultValue={editingCategory?.name || ""} className="modal-input" placeholder="e.g. Frontend Development" disabled={isSubmitting} />
                 </div>
                 
                 <div className="modal-form-group mb-0">
                   <label className="modal-label">Description (Optional)</label>
-                  <textarea name="description" className="modal-input" placeholder="Brief description of this category" disabled={isSubmitting} style={{ resize: 'vertical', minHeight: '80px' }}></textarea>
+                  <textarea name="description" defaultValue={editingCategory?.description || ""} className="modal-input" placeholder="Brief description of this category" disabled={isSubmitting} style={{ resize: 'vertical', minHeight: '80px' }}></textarea>
                 </div>
               </div>
               <div className="modal-footer">
@@ -296,6 +312,34 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {alertConfig && (
+        <div className="alert-overlay" onClick={() => setAlertConfig(null)}>
+          <div className="alert-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="alert-header">
+              <div className="alert-title-container">
+                {alertConfig.type === 'success' ? (
+                  <CheckCircle2 className="alert-icon alert-icon-success" />
+                ) : (
+                  <AlertCircle className="alert-icon alert-icon-error" />
+                )}
+                <h3 className="alert-title">{alertConfig.title}</h3>
+              </div>
+              <button type="button" className="alert-close-btn" onClick={() => setAlertConfig(null)}>
+                <X size={16} />
+              </button>
+            </div>
+            <div className="alert-body">
+              <p className="alert-message">{alertConfig.message}</p>
+            </div>
+            <div className="alert-footer">
+              <button type="button" className="alert-btn alert-btn-primary" onClick={() => setAlertConfig(null)}>
+                Okay
+              </button>
+            </div>
           </div>
         </div>
       )}

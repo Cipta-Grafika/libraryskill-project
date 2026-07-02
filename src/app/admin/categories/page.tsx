@@ -21,6 +21,7 @@ export default async function AdminCategoriesPage() {
       slug: true,
       description: true,
       createdAt: true,
+      updatedAt: true,
       _count: {
         select: { skills: true }
       }
@@ -28,8 +29,8 @@ export default async function AdminCategoriesPage() {
   });
 
   return (
-      <div className="categories-page">
-        <CategoriesClient initialCategories={categories} />
-      </div>
+    <div className="categories-page">
+      <CategoriesClient initialCategories={categories} />
+    </div>
   );
 }
