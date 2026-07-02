@@ -5,9 +5,13 @@ import "@/styles/login.css";
 import "@/styles/header.css";
 import "@/styles/dashboard.css";
 import "@/styles/users.css";
+import "@/styles/categories.css";
+import "@/styles/skills.css";
+import "@/styles/studio.css";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";
+import { AlertProvider } from "@/components/AlertProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,7 +42,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-300">
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            {children}
+            <AlertProvider>
+              {children}
+            </AlertProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>

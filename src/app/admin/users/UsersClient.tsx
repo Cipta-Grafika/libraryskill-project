@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Search, Filter, Settings, Download, Upload, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Search, Filter, Download, Upload, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { createUser } from "./actions";
 
 type User = {
@@ -26,6 +26,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
 
   // Sync users if server data changes (e.g., after adding a new record)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setUsers(initialUsers);
   }, [initialUsers]);
   
@@ -58,7 +59,9 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
     // 2. Sort
     if (sortConfig) {
       filtered = [...filtered].sort((a, b) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let aVal: any = a[sortConfig.key];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let bVal: any = b[sortConfig.key];
         
         if (aVal === null || aVal === undefined) aVal = "";
@@ -87,7 +90,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
     setSortConfig({ key, direction });
   };
 
-  const SortIcon = ({ columnKey }: { columnKey: keyof User }) => {
+  const renderSortIcon = (columnKey: keyof User) => {
     if (sortConfig?.key !== columnKey) return <ChevronUp size={14} className="opacity-20" />;
     return sortConfig.direction === "asc" ? <ChevronUp size={14} /> : <ChevronDown size={14} />;
   };
@@ -192,22 +195,22 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
                   />
                 </th>
                 <th className="users-th sortable" style={{ width: '15%' }} onClick={() => handleSort('name')}>
-                  <div className="users-th-inner">Name <SortIcon columnKey="name" /></div>
+                  <div className="users-th-inner">Name {renderSortIcon("name")}</div>
                 </th>
                 <th className="users-th sortable" style={{ width: '20%' }} onClick={() => handleSort('email')}>
-                  <div className="users-th-inner">Email <SortIcon columnKey="email" /></div>
+                  <div className="users-th-inner">Email {renderSortIcon("email")}</div>
                 </th>
                 <th className="users-th sortable" style={{ width: '15%' }} onClick={() => handleSort('slug')}>
-                  <div className="users-th-inner">Slug <SortIcon columnKey="slug" /></div>
+                  <div className="users-th-inner">Slug {renderSortIcon("slug")}</div>
                 </th>
                 <th className="users-th sortable" style={{ width: '20%' }} onClick={() => handleSort('bio')}>
-                  <div className="users-th-inner">Bio <SortIcon columnKey="bio" /></div>
+                  <div className="users-th-inner">Bio {renderSortIcon("bio")}</div>
                 </th>
                 <th className="users-th sortable" style={{ width: '10%', textOverflow: 'clip' }} onClick={() => handleSort('role')}>
-                  <div className="users-th-inner">Role <SortIcon columnKey="role" /></div>
+                  <div className="users-th-inner">Role {renderSortIcon("role")}</div>
                 </th>
                 <th className="users-th sortable" style={{ width: '10%', textOverflow: 'clip' }} onClick={() => handleSort('createdAt')}>
-                  <div className="users-th-inner">Created <SortIcon columnKey="createdAt" /></div>
+                  <div className="users-th-inner">Created {renderSortIcon("createdAt")}</div>
                 </th>
                 <th className="users-th text-right" style={{ width: '10%' }}>Details</th>
               </tr>
