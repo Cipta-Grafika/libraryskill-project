@@ -71,3 +71,8 @@ next-env.d.ts
 ./docs
 
 /src/generated/prisma
+
+./public/upload/img
+/public/upload/img/*
+/public/upload/*
+./public/upload/*

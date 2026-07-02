@@ -14,6 +14,9 @@
   --primary-700: #FFAC77;
   --primary-800: #FFA164;
   --primary-900: #FF964F;
+
+  /* Indicators */
+  --indicator-published: #22c55e;
 }
 
 /* Dark Theme Colors */
@@ -32,4 +35,7 @@
   --primary-700: #2E1607;
   --primary-800: #160802;
   --primary-900: #030100;
+
+  /* Indicators */
+  --indicator-published: #4ade80;
 }
