@@ -10,8 +10,13 @@ export default async function StudioLayout({
 }) {
   const session = await getServerSession(authOptions);
 
-  if (!session || session.user.role !== "AUTHOR" && session.user.role !== "SUPERADMIN") {
+  if (!session) {
     redirect("/auth/login");
+  }
+
+  // Strict check: Only AUTHOR can access /studio routes
+  if (session.user.role !== "AUTHOR") {
+    redirect("/403");
   }
 
   return (

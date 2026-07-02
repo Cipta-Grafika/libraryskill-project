@@ -1,9 +1,9 @@
-import { Header } from "@/components/Header";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { Header } from "@/components/Header";
 
-export default async function ReviewLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -14,8 +14,8 @@ export default async function ReviewLayout({
     redirect("/auth/login");
   }
 
-  // Strict check: Only REVIEWER can access /review routes
-  if (session.user.role !== "REVIEWER") {
+  // Strict check: Only SUPERADMIN can access /admin routes
+  if (session.user.role !== "SUPERADMIN") {
     redirect("/403");
   }
 

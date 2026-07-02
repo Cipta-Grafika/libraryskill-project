@@ -139,13 +139,22 @@
 
 .review-btn-secondary {
   background-color: transparent;
-  border: 1px solid var(--studio-border);
-  color: var(--studio-text);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.dark .review-btn-secondary {
+  color: var(--primary);
 }
 
 .review-btn-secondary:hover {
-  background-color: var(--studio-border);
-  border-color: var(--studio-border);
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.dark .review-btn-secondary:hover {
+  color: #1a1a1a;
 }
 
 /* Status Badges */
@@ -169,6 +178,16 @@
 .dark .review-badge.in_review {
   background-color: rgba(255, 150, 79, 0.15);
   color: var(--primary-300);
+}
+
+.review-badge.draft {
+  background-color: #f4f4f5;
+  color: #52525b;
+}
+
+.dark .review-badge.draft {
+  background-color: #27272a;
+  color: #a1a1aa;
 }
 
 .review-badge.published {

@@ -11,14 +11,11 @@ export function Header() {
   const { data: session } = useSession();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsMounted(true);
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
@@ -37,8 +34,6 @@ export function Header() {
   if (role === "SUPERADMIN") homeHref = "/admin";
   else if (role === "REVIEWER") homeHref = "/review";
   else if (role === "AUTHOR") homeHref = "/studio";
-
-  if (!isMounted) return null;
 
   return (
     <header className="header">

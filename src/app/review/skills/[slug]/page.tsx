@@ -20,7 +20,6 @@ export default async function ReviewDetailPage({ params }: ReviewDetailPageProps
   const skill = await db.skill.findFirst({
     where: {
       slug: resolvedParams.slug,
-      status: { not: "DRAFT" },
     },
     include: {
       author: true,
@@ -39,6 +38,7 @@ export default async function ReviewDetailPage({ params }: ReviewDetailPageProps
       case "REJECTED": return <span className="review-badge rejected">REJECTED</span>;
       case "IN_REVIEW": return <span className="review-badge in_review">IN REVIEW</span>;
       case "ARCHIVED": return <span className="review-badge bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">ARCHIVED</span>;
+      case "DRAFT": return <span className="review-badge draft">DRAFT</span>;
       default: return <span className="review-badge bg-zinc-100 text-zinc-500">{status}</span>;
     }
   };

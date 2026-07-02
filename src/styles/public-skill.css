@@ -27,6 +27,9 @@
   .public-skill-sidebar {
     width: 300px;
     flex-shrink: 0;
+    position: sticky;
+    top: 5.5rem;
+    align-self: flex-start;
   }
 }
 

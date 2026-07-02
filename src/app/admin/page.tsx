@@ -6,16 +6,8 @@ import { DashboardSearch } from "@/components/DashboardSearch";
 import { Globe, Rocket, History, Plus, ChevronRight } from "lucide-react";
 
 export default async function AdminDashboard() {
-  const session = await getServerSession(authOptions);
-
-  if (!session || session.user.role !== "SUPERADMIN") {
-    redirect("/auth/login");
-  }
-
   return (
-    <>
-      <Header />
-      <div className="dashboard-container">
+    <div className="dashboard-container">
         <h1 className="dashboard-title">Explore your skills!</h1>
         
         <DashboardSearch />
@@ -102,6 +94,5 @@ export default async function AdminDashboard() {
           </div>
         </div>
       </div>
-    </>
   );
 }

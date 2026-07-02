@@ -3,14 +3,9 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { Search, User, Filter } from "lucide-react";
 
-// Server component to fetch all skills (except DRAFTs)
-export default async function ReviewAllSkillsPage() {
+// Server component to fetch all skills (including DRAFTs)
+export default async function AdminAllSkillsPage() {
   const allSkills = await db.skill.findMany({
-    where: {
-      status: {
-        not: "DRAFT",
-      },
-    },
     include: {
       author: true,
       category: true,
@@ -32,18 +27,20 @@ export default async function ReviewAllSkillsPage() {
         return <span className="review-badge in_review">IN REVIEW</span>;
       case "ARCHIVED":
         return <span className="review-badge bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">ARCHIVED</span>;
+      case "DRAFT":
+        return <span className="review-badge draft">DRAFT</span>;
       default:
         return <span className="review-badge bg-zinc-100 text-zinc-500">{status}</span>;
     }
   };
 
   return (
-    <div className="review-container">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+      <div className="review-container">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
         <div className="review-header-section" style={{ marginBottom: 0 }}>
-          <h1 className="review-title">All Skills</h1>
+          <h1 className="review-title">Manage All Skills</h1>
           <p className="review-subtitle">
-            Browse and manage all submitted skills across the platform.
+            Admin view of all skills across the platform, including drafts.
           </p>
         </div>
         
@@ -68,7 +65,7 @@ export default async function ReviewAllSkillsPage() {
           <Search className="review-empty-icon" />
           <h3 className="review-empty-title">No skills found</h3>
           <p className="review-empty-desc">
-            There are no submitted skills to display yet.
+            There are no skills to display yet.
           </p>
         </div>
       ) : (
@@ -101,7 +98,7 @@ export default async function ReviewAllSkillsPage() {
               </div>
 
               <div className="review-card-footer">
-                <Link href={`/review/skills/${skill.slug}`} className="review-btn review-btn-secondary w-full text-center transition-colors">
+                <Link href={`/admin/skills/${skill.slug}`} className="review-btn review-btn-secondary w-full text-center transition-colors">
                   View Details
                 </Link>
               </div>
