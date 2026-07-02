@@ -151,59 +151,63 @@ export function Header() {
         </div>
 
         <div className="header-actions">
-          <Link href="/studio/skills/new" className="header-icon-btn" aria-label="Create new skill">
-            <PlusSquare size={18} />
-          </Link>
+          {role && (
+            <Link href="/studio/skills/new" className="header-icon-btn" aria-label="Create new skill">
+              <PlusSquare size={18} />
+            </Link>
+          )}
 
           <ThemeToggle />
           
-          <div className="dropdown-container" ref={dropdownRef}>
-            <button 
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className={`header-icon-btn ${dropdownOpen ? 'active' : ''}`}
-              aria-label="User menu"
-            >
-              <User size={18} />
-            </button>
+          {role && (
+            <div className="dropdown-container" ref={dropdownRef}>
+              <button 
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className={`header-icon-btn ${dropdownOpen ? 'active' : ''}`}
+                aria-label="User menu"
+              >
+                <User size={18} />
+              </button>
 
-            {dropdownOpen && (
-              <div className="dropdown-menu">
-                <div className="px-4 py-2 mb-1">
-                  <p className="text-sm font-medium text-foreground truncate">{session?.user?.name || 'User'}</p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{session?.user?.email}</p>
+              {dropdownOpen && (
+                <div className="dropdown-menu">
+                  <div className="px-4 py-2 mb-1">
+                    <p className="text-sm font-medium text-foreground truncate">{session?.user?.name || 'User'}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{session?.user?.email}</p>
+                  </div>
+                  <div className="dropdown-divider"></div>
+                  <Link href="/studio/skills/new" className="dropdown-item">
+                    <span>Create Skill</span>
+                  </Link>
+                  <button className="dropdown-item">
+                    <span>Profile</span>
+                  </button>
+                  <button className="dropdown-item">
+                    <span>Billing</span>
+                  </button>
+                  <button className="dropdown-item flex items-center justify-between">
+                    <span>Appearance</span>
+                    <ChevronRight size={14} className="text-zinc-400" />
+                  </button>
+                  <button className="dropdown-item flex items-center justify-between">
+                    <span>Language</span>
+                    <ChevronRight size={14} className="text-zinc-400" />
+                  </button>
+                  <button className="dropdown-item flex items-center justify-between">
+                    <span>Timezone</span>
+                    <ChevronRight size={14} className="text-zinc-400" />
+                  </button>
+                  <div className="dropdown-divider"></div>
+                  <button 
+                    onClick={() => signOut({ callbackUrl: '/auth/login' })}
+                    className="dropdown-item danger"
+                  >
+                    Log out
+                  </button>
                 </div>
-                <div className="dropdown-divider"></div>
-                <Link href="/studio/skills/new" className="dropdown-item">
-                  <span>Create Skill</span>
-                </Link>
-                <button className="dropdown-item">
-                  <span>Profile</span>
-                </button>
-                <button className="dropdown-item">
-                  <span>Billing</span>
-                </button>
-                <button className="dropdown-item flex items-center justify-between">
-                  <span>Appearance</span>
-                  <ChevronRight size={14} className="text-zinc-400" />
-                </button>
-                <button className="dropdown-item flex items-center justify-between">
-                  <span>Language</span>
-                  <ChevronRight size={14} className="text-zinc-400" />
-                </button>
-                <button className="dropdown-item flex items-center justify-between">
-                  <span>Timezone</span>
-                  <ChevronRight size={14} className="text-zinc-400" />
-                </button>
-                <div className="dropdown-divider"></div>
-                <button 
-                  onClick={() => signOut({ callbackUrl: '/auth/login' })}
-                  className="dropdown-item danger"
-                >
-                  Log out
-                </button>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </header>
