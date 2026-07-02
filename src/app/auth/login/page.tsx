@@ -34,8 +34,8 @@ export default function LoginPage() {
         router.push("/"); 
         router.refresh();
       }
-    } catch (err) {
-      setError("An unexpected error occurred");
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
       setLoading(false);
     }
   };
@@ -104,7 +104,7 @@ export default function LoginPage() {
           </form>
           
           <div className="auth-footer">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/auth/register" className="auth-link">
               Register here
             </Link>

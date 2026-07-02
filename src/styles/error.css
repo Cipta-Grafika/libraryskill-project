@@ -1,0 +1,81 @@
+/* Error Page Styling */
+
+.error-page-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 4rem);
+  padding: 2rem 1.5rem;
+}
+
+.error-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background-color: var(--studio-card-bg);
+  border: 1px solid var(--studio-border);
+  border-radius: 1rem;
+  padding: 3rem 2rem;
+  max-width: 480px;
+  width: 100%;
+}
+
+.error-icon-wrapper {
+  background-color: #fee2e2;
+  color: #ef4444;
+  padding: 1rem;
+  border-radius: 9999px;
+  margin-bottom: 1.5rem;
+}
+
+.dark .error-icon-wrapper {
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+.error-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.error-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--studio-text);
+  margin-bottom: 0.75rem;
+}
+
+.error-message {
+  font-size: 0.9375rem;
+  color: var(--studio-text-muted);
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.error-actions {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.error-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: var(--primary);
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.error-btn:hover {
+  background-color: var(--primary-600);
+}
+
+.dark .error-btn {
+  color: #1a1a1a;
+}
