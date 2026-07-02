@@ -1,0 +1,34 @@
+[
+  {
+    "id": "chatgpt",
+    "name": "ChatGPT"
+  },
+  {
+    "id": "claude",
+    "name": "Claude AI"
+  },
+  {
+    "id": "gemini",
+    "name": "Gemini AI"
+  },
+  {
+    "id": "deepseek",
+    "name": "DeepSeek"
+  },
+  {
+    "id": "grok",
+    "name": "Grok"
+  },
+  {
+    "id": "seedai",
+    "name": "Seed AI"
+  },
+  {
+    "id": "kimi",
+    "name": "Kimi AI"
+  },
+  {
+    "id": "perplexity",
+    "name": "Perplexity AI"
+  }
+]

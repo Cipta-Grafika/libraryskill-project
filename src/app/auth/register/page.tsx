@@ -48,8 +48,12 @@ export default function RegisterPage() {
       }
 
       router.push("/auth/login?registered=true");
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred");
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
       setLoading(false);
     }
   };

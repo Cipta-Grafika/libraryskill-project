@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Header } from "@/components/Header";
 import { DashboardSearch } from "@/components/DashboardSearch";
 import { Globe, Rocket, History, Plus, ChevronRight } from "lucide-react";
 
@@ -14,7 +13,6 @@ export default async function ReviewDashboard() {
 
   return (
     <>
-      <Header />
       <div className="dashboard-container">
         <h1 className="dashboard-title">Explore your skills!</h1>
         
