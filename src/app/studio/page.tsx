@@ -1,79 +1,96 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { Header } from "@/components/Header";
-import { DashboardSearch } from "@/components/DashboardSearch";
-import { Globe, Rocket, History, Plus, ChevronRight } from "lucide-react";
+"use client";
 
-export default async function StudioDashboard() {
-  const session = await getServerSession(authOptions);
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { PlusCircle, BookOpen, Clock, CheckCircle, Edit3 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
-  if (!session || (session.user.role !== "AUTHOR" && session.user.role !== "SUPERADMIN")) {
-    redirect("/auth/login");
-  }
+type Skill = {
+  id: string;
+  status: string;
+};
+
+export default function AuthorDashboardPage() {
+  const { data: session } = useSession();
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/skills")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setSkills(data);
+      })
+      .catch(console.error)
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const stats = {
+    total: skills.length,
+    drafts: skills.filter(s => s.status === "DRAFT").length,
+    inReview: skills.filter(s => s.status === "IN_REVIEW").length,
+    published: skills.filter(s => s.status === "PUBLISHED").length,
+  };
 
   return (
-    <>
-      <Header />
-      <div className="dashboard-container">
-        <h1 className="dashboard-title">Explore your skills!</h1>
-        
-        <DashboardSearch />
-
-        <div className="dashboard-grid">
-          {/* Column 1 */}
-          <div className="dashboard-column">
-            <div className="dashboard-column-header">
-              <span className="dashboard-column-header-title">My Skills <ChevronRight size={14}/></span>
-              <button><Plus size={16} /></button>
-            </div>
-            <div className="dashboard-card-list">
-              <div className="dashboard-card">
-                <div className="dashboard-card-left">
-                  <Globe size={16} className="dashboard-card-icon" />
-                  <span>libraryskill.com</span>
-                </div>
-                <ChevronRight size={16} className="dashboard-card-arrow" />
-              </div>
-              <div className="dashboard-card">
-                <div className="dashboard-card-left">
-                  <Globe size={16} className="dashboard-card-icon" />
-                  <span>cetakia.com</span>
-                </div>
-                <ChevronRight size={16} className="dashboard-card-arrow" />
-              </div>
-            </div>
-          </div>
-
-          {/* Column 2 */}
-          <div className="dashboard-column">
-            <div className="dashboard-column-header">
-              <span className="dashboard-column-header-title">Drafts <ChevronRight size={14}/></span>
-              <button><Plus size={16} /></button>
-            </div>
-            <div className="dashboard-empty-card">
-              <Rocket size={16} />
-              <span>Ship something new</span>
-            </div>
-          </div>
-
-          {/* Column 3 */}
-          <div className="dashboard-column">
-            <div className="dashboard-column-header">
-              <span className="dashboard-column-header-title">Recents</span>
-            </div>
-            <div className="dashboard-card-list">
-              <div className="dashboard-card">
-                <div className="dashboard-card-left">
-                  <History size={16} className="dashboard-card-icon" />
-                  <span>Editor / <b>Draft A</b></span>
-                </div>
-                <ChevronRight size={16} className="dashboard-card-arrow" />
-              </div>
-            </div>
-          </div>
+    <div className="studio-container w-full">
+      <div className="studio-header">
+        <div>
+          <h1 className="studio-title">
+            Welcome back, {session?.user?.name || 'Author'}!
+          </h1>
+          <p className="studio-subtitle">
+            Here&apos;s an overview of your prompt documentation studio.
+          </p>
+        </div>
+        <div className="studio-actions">
+          <Link 
+            href="/studio/skills/new" 
+            className="studio-btn studio-btn-primary"
+          >
+            <PlusCircle size={18} />
+            <span>Create New Skill</span>
+          </Link>
         </div>
       </div>
-    </>
+
+      {isLoading ? (
+        <div className="text-center py-12 text-zinc-500">Loading your dashboard...</div>
+      ) : (
+        <div className="studio-stats-grid">
+          <div className="studio-stat-card">
+            <div className="studio-stat-header">
+              <BookOpen size={16} className="text-blue-500" />
+              <span className="studio-stat-title">Total Skills</span>
+            </div>
+            <span className="studio-stat-value">{stats.total}</span>
+          </div>
+          
+          <div className="studio-stat-card">
+            <div className="studio-stat-header">
+              <Edit3 size={16} className="text-zinc-400" />
+              <span className="studio-stat-title">Drafts</span>
+            </div>
+            <span className="studio-stat-value">{stats.drafts}</span>
+          </div>
+
+          <div className="studio-stat-card">
+            <div className="studio-stat-header">
+              <Clock size={16} className="text-yellow-500" />
+              <span className="studio-stat-title">In Review</span>
+            </div>
+            <span className="studio-stat-value">{stats.inReview}</span>
+          </div>
+
+          <div className="studio-stat-card">
+            <div className="studio-stat-header">
+              <CheckCircle size={16} className="text-green-500" />
+              <span className="studio-stat-title">Published</span>
+            </div>
+            <span className="studio-stat-value">{stats.published}</span>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
