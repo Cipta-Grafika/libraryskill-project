@@ -355,10 +355,12 @@
 
 .dashboard-card-icon {
   color: var(--dash-text-muted);
+  flex-shrink: 0;
 }
 
 .dashboard-card-arrow {
   color: var(--dash-text-muted);
+  flex-shrink: 0;
 }
 
 .dashboard-empty-card {
