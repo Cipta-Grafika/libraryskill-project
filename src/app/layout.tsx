@@ -12,6 +12,7 @@ import "@/styles/review.css";
 import "@/styles/public-skill.css";
 import "@/styles/error.css";
 import "@/styles/page-banner.css";
+import "@/styles/footer.css";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";

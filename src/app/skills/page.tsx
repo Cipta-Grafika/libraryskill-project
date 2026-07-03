@@ -1,4 +1,5 @@
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { DashboardSearch } from "@/components/DashboardSearch";
 import { ChevronRight, Sparkles, Plus, Rocket } from "lucide-react";
 import { db } from "@/lib/db";
@@ -118,6 +119,7 @@ export default async function PublicSkillsPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

@@ -4,6 +4,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { PageBanner } from "@/components/PageBanner";
 import Link from "next/link";
 import { BookOpen, User } from "lucide-react";
@@ -203,6 +204,7 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
 
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
