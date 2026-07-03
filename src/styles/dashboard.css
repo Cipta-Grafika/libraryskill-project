@@ -49,6 +49,7 @@
 }
 
 .dashboard-container {
+  width: 100%;
   max-width: 64rem;
   margin: 0 auto;
   padding: 4rem 1.5rem;
@@ -63,6 +64,22 @@
   color: var(--dash-text);
   margin-bottom: 2rem;
   letter-spacing: -0.025em;
+}
+
+/* Public Skills Hero Background Gradient */
+.skills-hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 192, 103, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark .skills-hero-bg {
+  background: radial-gradient(circle at 50% 0%, rgba(255, 150, 79, 0.1) 0%, transparent 70%);
 }
 
 /* Search Component */
@@ -266,7 +283,7 @@
   cursor: pointer;
 }
 .dashboard-column-header-title:hover {
-  color: var(--dash-text);
+  color: var(--primary);
 }
 
 .dashboard-column-header button {

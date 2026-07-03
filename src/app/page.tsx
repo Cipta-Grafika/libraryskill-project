@@ -27,7 +27,7 @@ export default function Home() {
           </p>
           
           <div className="landing-cta-group">
-            <Link href="/auth/login" className="landing-btn-primary">
+            <Link href="/skills" className="landing-btn-primary">
               Start Exploring <ArrowRight size={18} />
             </Link>
             <Link href="/frontend-development/prompt-engineering" className="landing-btn-secondary">

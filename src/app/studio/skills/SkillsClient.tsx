@@ -208,23 +208,20 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
                     <td className="skills-td skills-td-name" title={s.title}>{s.title}</td>
                     <td className="skills-td text-zinc-500" title={s.category?.name || "Uncategorized"}>{s.category?.name || "Uncategorized"}</td>
                     <td className="skills-td" style={{ textOverflow: 'clip' }}>
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
-                        ${s.status === "PUBLISHED" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
-                          s.status === "IN_REVIEW" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                          s.status === "REJECTED" ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" :
-                          "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                        }`}
-                      >
-                        {s.status}
+                      <span className={`review-badge ${
+                        s.status === "ARCHIVED" ? "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400" :
+                        s.status.toLowerCase()
+                      }`}>
+                        {s.status === "IN_REVIEW" ? "IN REVIEW" : s.status}
                       </span>
                     </td>
                     <td className="skills-td" style={{ textOverflow: 'clip' }}>{new Date(s.createdAt).toLocaleDateString()}</td>
                     <td className="skills-td text-right">
                       <div className="flex justify-end gap-3">
-                        <Link href={`/skills/${s.id}`} target="_blank" className="skills-table-action-btn">
+                        <Link href={`/studio/skills/view/${s.slug}`} target="_blank" className="skills-table-action-btn">
                           View
                         </Link>
-                        <Link href={`/studio/skills/${s.id}/edit`} className="skills-table-action-btn">
+                        <Link href={`/studio/skills/edit/${s.slug}`} className="skills-table-action-btn">
                           Edit
                         </Link>
                         <button onClick={() => deleteSkill(s.id)} className="skills-table-action-btn text-red-500">
