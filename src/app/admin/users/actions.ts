@@ -99,3 +99,29 @@ export async function updateUser(id: string, formData: FormData) {
     return { error: "Failed to update user" };
   }
 }
+
+export async function deleteUser(id: string) {
+  try {
+    const { getServerSession } = await import("next-auth/next");
+    const { authOptions } = await import("@/lib/auth");
+    const session = await getServerSession(authOptions);
+    
+    if (!session || session.user?.role !== "SUPERADMIN") {
+      return { error: "Unauthorized. Only superadmins can delete users." };
+    }
+
+    if (session.user.id === id) {
+      return { error: "You cannot delete yourself." };
+    }
+
+    await prisma.user.delete({
+      where: { id },
+    });
+
+    revalidatePath("/admin/users");
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return { error: "Failed to delete user" };
+  }
+}

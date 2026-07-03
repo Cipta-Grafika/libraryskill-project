@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { Search, Filter, Download, Upload, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CheckCircle2, AlertCircle } from "lucide-react";
-import { createCategory, updateCategory } from "./actions";
+import { createCategory, updateCategory, deleteCategory } from "./actions";
 
 type Category = {
   id: string;
@@ -40,6 +40,7 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [alertConfig, setAlertConfig] = useState<{ type: 'success' | 'error'; title: string; message: string } | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const openAddModal = () => {
     setEditingCategory(null);
@@ -136,6 +137,24 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
     } else {
       setEditingCategory(null);
       setAlertConfig({ type: 'success', title: 'Success', message: 'Category record has been successfully saved.' });
+    }
+  };
+
+  const handleDeleteCategory = (id: string) => {
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDeleteCategory = async () => {
+    if (!deleteConfirmId) return;
+    setIsSubmitting(true);
+    const result = await deleteCategory(deleteConfirmId);
+    setDeleteConfirmId(null);
+    setIsSubmitting(false);
+    
+    if (result?.error) {
+      setAlertConfig({ type: 'error', title: 'Action Failed', message: result.error });
+    } else {
+      setAlertConfig({ type: 'success', title: 'Success', message: 'Category record has been successfully deleted.' });
     }
   };
 
@@ -248,6 +267,7 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
                     <td className="categories-td" style={{ textOverflow: 'clip' }}>{new Date(c.updatedAt).toLocaleDateString()}</td>
                     <td className="categories-td text-right">
                       <button className="categories-table-action-btn" onClick={() => openEditModal(c)}>Edit</button>
+                      <button className="categories-table-action-btn ml-2" style={{ color: 'var(--danger, #ef4444)' }} onClick={() => handleDeleteCategory(c.id)}>Delete</button>
                     </td>
                   </tr>
                 ))
@@ -338,6 +358,44 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
             <div className="alert-footer">
               <button type="button" className="alert-btn alert-btn-primary" onClick={() => setAlertConfig(null)}>
                 Okay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteConfirmId && (
+        <div className="alert-overlay" onClick={() => !isSubmitting && setDeleteConfirmId(null)}>
+          <div className="alert-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="alert-header">
+              <div className="alert-title-container">
+                <AlertCircle className="alert-icon alert-icon-error" />
+                <h3 className="alert-title">Confirm Deletion</h3>
+              </div>
+              <button type="button" className="alert-close-btn" onClick={() => !isSubmitting && setDeleteConfirmId(null)} disabled={isSubmitting}>
+                <X size={16} />
+              </button>
+            </div>
+            <div className="alert-body">
+              <p className="alert-message">Are you sure you want to delete this category? This action cannot be undone.</p>
+            </div>
+            <div className="alert-footer flex justify-end gap-3 mt-4">
+              <button 
+                type="button" 
+                className="categories-btn categories-btn-outline" 
+                onClick={() => setDeleteConfirmId(null)} 
+                disabled={isSubmitting}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="categories-btn" 
+                style={{ backgroundColor: 'var(--danger, #ef4444)', color: 'white', border: 'none' }} 
+                onClick={confirmDeleteCategory} 
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Deleting..." : "Confirm Delete"}
               </button>
             </div>
           </div>

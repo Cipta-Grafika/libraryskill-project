@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { Search, Filter, Download, Upload, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react";
-import { createUser, updateUser } from "./actions";
+import { createUser, updateUser, deleteUser } from "./actions";
 
 type User = {
   id: string;
@@ -43,6 +43,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [alertConfig, setAlertConfig] = useState<{ type: 'success' | 'error'; title: string; message: string } | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -153,6 +154,24 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
       setEditingUser(null);
       setAlertConfig({ type: 'success', title: 'Success', message: 'User record has been successfully saved.' });
       // Data will refresh via revalidatePath
+    }
+  };
+
+  const handleDeleteUser = (id: string) => {
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!deleteConfirmId) return;
+    setIsSubmitting(true);
+    const result = await deleteUser(deleteConfirmId);
+    setDeleteConfirmId(null);
+    setIsSubmitting(false);
+    
+    if (result?.error) {
+      setAlertConfig({ type: 'error', title: 'Action Failed', message: result.error });
+    } else {
+      setAlertConfig({ type: 'success', title: 'Success', message: 'User record has been successfully deleted.' });
     }
   };
 
@@ -269,6 +288,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
                     <td className="users-td" style={{ textOverflow: 'clip' }}>{new Date(u.updatedAt).toLocaleDateString()}</td>
                     <td className="users-td text-right">
                       <button className="users-table-action-btn" onClick={() => openEditModal(u)}>Edit</button>
+                      <button className="users-table-action-btn ml-2" style={{ color: 'var(--danger, #ef4444)' }} onClick={() => handleDeleteUser(u.id)}>Delete</button>
                     </td>
                   </tr>
                 ))
@@ -416,6 +436,44 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
             <div className="alert-footer">
               <button type="button" className="alert-btn alert-btn-primary" onClick={() => setAlertConfig(null)}>
                 Okay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteConfirmId && (
+        <div className="alert-overlay" onClick={() => !isSubmitting && setDeleteConfirmId(null)}>
+          <div className="alert-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="alert-header">
+              <div className="alert-title-container">
+                <AlertCircle className="alert-icon alert-icon-error" />
+                <h3 className="alert-title">Confirm Deletion</h3>
+              </div>
+              <button type="button" className="alert-close-btn" onClick={() => !isSubmitting && setDeleteConfirmId(null)} disabled={isSubmitting}>
+                <X size={16} />
+              </button>
+            </div>
+            <div className="alert-body">
+              <p className="alert-message">Are you sure you want to delete this user? This action cannot be undone.</p>
+            </div>
+            <div className="alert-footer flex justify-end gap-3 mt-4">
+              <button 
+                type="button" 
+                className="users-btn users-btn-outline" 
+                onClick={() => setDeleteConfirmId(null)} 
+                disabled={isSubmitting}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="users-btn" 
+                style={{ backgroundColor: 'var(--danger, #ef4444)', color: 'white', border: 'none' }} 
+                onClick={confirmDeleteUser} 
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Deleting..." : "Confirm Delete"}
               </button>
             </div>
           </div>
