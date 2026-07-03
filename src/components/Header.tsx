@@ -49,19 +49,28 @@ export function Header() {
             )}
           </Link>
 
-          {role && (
-            <div className="mobile-menu-container" ref={mobileMenuRef}>
-              <button 
-                className="mobile-menu-btn" 
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="Toggle mobile menu"
-              >
-                {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-              </button>
-              
-              {mobileMenuOpen && (
-                <nav className="mobile-menu-dropdown">
-                  {role === "SUPERADMIN" && (
+          <div className="mobile-menu-container" ref={mobileMenuRef}>
+            <button 
+              className="mobile-menu-btn" 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle mobile menu"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+            
+            {mobileMenuOpen && (
+              <nav className="mobile-menu-dropdown">
+                {!role && status !== "loading" && (
+                  <>
+                    <Link href="/skills" className={`mobile-nav-link ${pathname === '/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Compass size={16} /> All Skills
+                    </Link>
+                    <Link href="/docs" className={`mobile-nav-link ${pathname.includes('/docs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <BookOpen size={16} /> Docs
+                    </Link>
+                  </>
+                )}
+                {role === "SUPERADMIN" && (
                     <>
                       <Link href="/admin/users" className={`mobile-nav-link ${pathname.includes('/admin/users') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                         <Users size={16} /> Users
@@ -106,12 +115,20 @@ export function Header() {
                 </nav>
               )}
             </div>
-          )}
 
           {/* Navigation Menu */}
-          {role && (
-            <nav className="header-nav">
-              {role === "SUPERADMIN" && (
+          <nav className="header-nav">
+            {!role && status !== "loading" && (
+              <>
+                <Link href="/skills" className={`header-nav-link ${pathname === '/skills' ? 'active' : ''}`}>
+                  <Compass size={16} /> All Skills
+                </Link>
+                <Link href="/docs" className={`header-nav-link ${pathname.includes('/docs') ? 'active' : ''}`}>
+                  <BookOpen size={16} /> Docs
+                </Link>
+              </>
+            )}
+            {role === "SUPERADMIN" && (
                 <>
                   <Link href="/admin/users" className={`header-nav-link ${pathname.includes('/admin/users') ? 'active' : ''}`}>
                     <Users size={16} /> Users
@@ -154,7 +171,6 @@ export function Header() {
                 </>
               )}
             </nav>
-          )}
         </div>
 
         <div className="header-actions">

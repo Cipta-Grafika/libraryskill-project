@@ -53,13 +53,13 @@ export default function AdminSkillsClient({ initialSkills }: { initialSkills: Sk
           </p>
         </div>
         
-        <div className="flex gap-2">
-          <div className="relative">
+        <div className="flex gap-2 w-full md:w-auto">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={16} />
             <input 
               type="text" 
               placeholder="Search skills..." 
-              className="studio-input pl-10"
+              className="studio-input pl-10 w-full"
               style={{ paddingLeft: '2.5rem' }}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
