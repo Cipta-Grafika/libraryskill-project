@@ -224,7 +224,7 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
                         <Link href={`/studio/skills/edit/${s.slug}`} className="skills-table-action-btn">
                           Edit
                         </Link>
-                        <button onClick={() => deleteSkill(s.id)} className="skills-table-action-btn text-red-500">
+                        <button onClick={() => deleteSkill(s.id)} className="skills-table-action-danger">
                           Delete
                         </button>
                       </div>
