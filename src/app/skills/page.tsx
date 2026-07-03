@@ -7,10 +7,42 @@ import { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export const metadata: Metadata = {
-  title: "Explore Skills - LibrarySkill",
-  description: "Search and explore published skills on LibrarySkill.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  
+  return {
+    title: "Explore All Skills | Discover the Best Prompts & Tutorials - LibrarySkill",
+    description: "Browse, search, and discover the best published skills, prompts, and knowledge bases on LibrarySkill. Find high-quality guides for various roles.",
+    keywords: ["library skill", "prompts", "knowledge base", "tutorials", "guides", "explore skills", "tech skills", "best prompts"],
+    openGraph: {
+      title: "Explore All Skills | Discover the Best Prompts & Tutorials",
+      description: "Browse, search, and discover the best published skills, prompts, and knowledge bases on LibrarySkill.",
+      url: `${baseUrl}/skills`,
+      siteName: "LibrarySkill",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Explore All Skills | Discover the Best Prompts & Tutorials",
+      description: "Browse, search, and discover the best published skills, prompts, and knowledge bases on LibrarySkill.",
+    },
+    robots: {
+      index: true,
+      follow: true,
+      nocache: false,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+    alternates: {
+      canonical: `${baseUrl}/skills`,
+    },
+  };
+}
 
 export default async function PublicSkillsPage() {
   const session = await getServerSession(authOptions);

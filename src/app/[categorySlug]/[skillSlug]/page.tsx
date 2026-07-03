@@ -4,6 +4,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Header } from "@/components/Header";
+import { PageBanner } from "@/components/PageBanner";
 import Link from "next/link";
 import { BookOpen, User } from "lucide-react";
 import modelsData from "@/data/models.json";
@@ -87,6 +88,7 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
+      <PageBanner backHref="/skills" backText="Back to Skills" />
       
       <main className="public-skill-container flex-grow mt-4 md:mt-8">
         <div className="public-skill-layout">

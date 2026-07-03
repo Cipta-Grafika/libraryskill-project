@@ -34,7 +34,7 @@
     width: 300px;
     flex-shrink: 0;
     position: sticky;
-    top: 5.5rem;
+    top: 8.5rem;
     align-self: flex-start;
   }
 }

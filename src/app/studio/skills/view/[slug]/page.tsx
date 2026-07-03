@@ -15,6 +15,8 @@ interface PreviewSkillPageProps {
   }>;
 }
 
+import { PageBanner } from "@/components/PageBanner";
+
 export default async function PreviewSkillPage({ params }: PreviewSkillPageProps) {
   const session = await getServerSession(authOptions);
 
@@ -45,6 +47,9 @@ export default async function PreviewSkillPage({ params }: PreviewSkillPageProps
 
   return (
     <div className="flex flex-col min-h-screen">
+      <PageBanner backHref="/studio/skills" backText="Back to Skills">
+        <span className="header-role-badge" style={{ display: 'inline-block', margin: 0 }}>preview</span>
+      </PageBanner>
       
       <main className="public-skill-container flex-grow mt-4 md:mt-8">
         <div className="public-skill-layout">

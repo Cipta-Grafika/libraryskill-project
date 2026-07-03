@@ -8,7 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export function Header() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -214,7 +214,11 @@ export function Header() {
             </div>
           )}
 
-          {!session && (
+          {status === "loading" && (
+            <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 animate-pulse ml-2"></div>
+          )}
+
+          {!session && status !== "loading" && (
             <Link 
               href="/auth/login" 
               className="ml-2 px-3 py-1.5 text-sm font-medium bg-[var(--primary)] text-zinc-900 rounded-md hover:opacity-90 transition-opacity"
