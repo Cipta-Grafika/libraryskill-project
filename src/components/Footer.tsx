@@ -6,7 +6,7 @@ export function Footer() {
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-copyright">
-          &copy; {new Date().getFullYear()} LibrarySkill. All rights reserved.
+          &copy; {new Date().getFullYear()} <Link href="/" className="footer-copyright-link">LibrarySkill</Link>. All rights reserved.
         </div>
         
         <div className="footer-links">

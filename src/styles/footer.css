@@ -54,3 +54,14 @@
     text-align: left;
   }
 }
+
+.footer-copyright-link {
+  color: var(--header-text);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-copyright-link:hover {
+  color: var(--primary);
+}
