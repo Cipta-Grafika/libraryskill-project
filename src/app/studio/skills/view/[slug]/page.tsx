@@ -1,78 +1,32 @@
-import { db } from "@/lib/db";
-import { notFound } from "next/navigation";
-import { Metadata, ResolvingMetadata } from "next";
+import { db as prisma } from "@/lib/db";
+import { notFound, redirect } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { PageBanner } from "@/components/PageBanner";
-import Link from "next/link";
 import { BookOpen, User } from "lucide-react";
 import modelsData from "@/data/models.json";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-interface PublicSkillPageProps {
-  params: {
-    categorySlug: string;
-    skillSlug: string;
-  };
+interface PreviewSkillPageProps {
+  params: Promise<{
+    slug: string;
+  }>;
 }
 
-// Generate Dynamic SEO Metadata
-export async function generateMetadata(
-  { params }: PublicSkillPageProps,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
-  const resolvedParams = await params;
-  const skill = await db.skill.findFirst({
-    where: {
-      slug: resolvedParams.skillSlug,
-      category: {
-        slug: resolvedParams.categorySlug,
-      },
-    },
-    include: {
-      category: true,
-      author: true,
-    },
-  });
+import { PageBanner } from "@/components/PageBanner";
 
-  if (!skill || skill.status !== "PUBLISHED") {
-    return {
-      title: "Not Found - LibrarySkill",
-    };
+export default async function PreviewSkillPage({ params }: PreviewSkillPageProps) {
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user) {
+    redirect("/auth/login");
   }
 
-  const previousImages = (await parent).openGraph?.images || [];
+  const { slug } = await params;
 
-  return {
-    title: `${skill.title} - LibrarySkill`,
-    description: skill.description || `Read ${skill.title} by ${skill.author.name} on LibrarySkill.`,
-    keywords: skill.tags.join(", "),
-    openGraph: {
-      title: skill.title,
-      description: skill.description || "",
-      type: "article",
-      authors: [skill.author.name],
-      tags: skill.tags,
-      images: [...previousImages],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: skill.title,
-      description: skill.description || "",
-    },
-  };
-}
-
-export default async function PublicSkillPage({ params }: PublicSkillPageProps) {
-  const resolvedParams = await params;
-
-  const skill = await db.skill.findFirst({
+  const skill = await prisma.skill.findFirst({
     where: {
-      slug: resolvedParams.skillSlug,
-      category: {
-        slug: resolvedParams.categorySlug,
-      },
+      slug,
     },
     include: {
       author: true,
@@ -80,16 +34,20 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
     },
   });
 
-  console.log("DEBUG PublicSkillPage:", { resolvedParams, skillFound: !!skill });
-
-  if (!skill || skill.status !== "PUBLISHED") {
+  if (!skill) {
     notFound();
+  }
+
+  // Security check: Only the author or SUPERADMIN can view this preview.
+  if (skill.authorId !== session.user.id && session.user.role !== "SUPERADMIN") {
+    redirect("/studio/skills");
   }
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
-      <PageBanner backHref="/skills" backText="Back to Skills" />
+      <PageBanner backHref="/studio/skills" backText="Back to Skills">
+        <span className="header-role-badge" style={{ display: 'inline-block', margin: 0 }}>preview</span>
+      </PageBanner>
       
       <main className="public-skill-container flex-grow mt-4 md:mt-8">
         <div className="public-skill-layout">
@@ -124,7 +82,6 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
           {/* Sidebar (Right) */}
           <aside className="public-skill-sidebar">
             
-            {/* People Section */}
             <div className="public-sidebar-card">
               {/* People Section */}
               <div className="public-sidebar-card-header">Author</div>
@@ -171,12 +128,12 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
               <div className="public-sidebar-card-body space-y-2">
                 <p className="public-sidebar-text public-published-indicator">
                   <span className="public-published-dot"></span>
-                  <strong>Published:</strong> {new Date(skill.publishedAt || skill.updatedAt).toLocaleDateString()}
+                  <strong>Updated:</strong> {new Date(skill.updatedAt).toLocaleDateString()}
                 </p>
                 <p className="public-sidebar-text">
-                  <Link href={`/raw/${skill.category?.slug}/${skill.slug}.md`} target="_blank" className="text-primary-600 hover:underline">
-                    View Raw Markdown
-                  </Link>
+                  <span className="text-zinc-400 dark:text-zinc-500 cursor-not-allowed">
+                    Raw Markdown (Disabled in Preview)
+                  </span>
                 </p>
               </div>
 
@@ -204,7 +161,6 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
 
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { ThemeToggle } from "./ThemeToggle";
-import { User, ChevronRight, Users, Grid, BookOpen, ScrollText, PlusCircle, Inbox, PlusSquare, Menu, X } from "lucide-react";
+import { User, ChevronRight, Users, Grid, BookOpen, ScrollText, PlusCircle, Inbox, PlusSquare, Menu, X, Settings, Compass } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -49,19 +49,28 @@ export function Header() {
             )}
           </Link>
 
-          {role && (
-            <div className="mobile-menu-container" ref={mobileMenuRef}>
-              <button 
-                className="mobile-menu-btn" 
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="Toggle mobile menu"
-              >
-                {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-              </button>
-              
-              {mobileMenuOpen && (
-                <nav className="mobile-menu-dropdown">
-                  {role === "SUPERADMIN" && (
+          <div className="mobile-menu-container" ref={mobileMenuRef}>
+            <button 
+              className="mobile-menu-btn" 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle mobile menu"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+            
+            {mobileMenuOpen && (
+              <nav className="mobile-menu-dropdown">
+                {!role && (
+                  <>
+                    <Link href="/skills" className={`mobile-nav-link ${pathname.includes('/skills') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Compass size={16} /> <span>All Skills</span>
+                    </Link>
+                    <Link href="/docs" className={`mobile-nav-link ${pathname.includes('/docs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <BookOpen size={16} /> <span>Docs</span>
+                    </Link>
+                  </>
+                )}
+                {role === "SUPERADMIN" && (
                     <>
                       <Link href="/admin/users" className={`mobile-nav-link ${pathname.includes('/admin/users') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                         <Users size={16} /> Users
@@ -83,7 +92,10 @@ export function Header() {
                         <Inbox size={16} /> Queue
                       </Link>
                       <Link href="/review/skills" className={`mobile-nav-link ${pathname.includes('/review/skills') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                        <BookOpen size={16} /> All Skills
+                        <BookOpen size={16} /> Review Skills
+                      </Link>
+                      <Link href="/skills" className={`mobile-nav-link ${pathname === '/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                        <Compass size={16} /> All Skills
                       </Link>
                     </>
                   )}
@@ -95,17 +107,28 @@ export function Header() {
                       <Link href="/studio/skills" className={`mobile-nav-link ${pathname === '/studio/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                         <BookOpen size={16} /> My Skills
                       </Link>
+                      <Link href="/skills" className={`mobile-nav-link ${pathname === '/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                        <Compass size={16} /> All Skills
+                      </Link>
                     </>
                   )}
                 </nav>
               )}
             </div>
-          )}
 
           {/* Navigation Menu */}
-          {role && (
-            <nav className="header-nav">
-              {role === "SUPERADMIN" && (
+          <nav className="header-nav">
+            {!role && (
+              <>
+                <Link href="/skills" className={`header-nav-link ${pathname.includes('/skills') ? 'active' : ''}`}>
+                  <Compass size={16} /> <span>All Skills</span>
+                </Link>
+                <Link href="/docs" className={`header-nav-link ${pathname.includes('/docs') ? 'active' : ''}`}>
+                  <BookOpen size={16} /> <span>Docs</span>
+                </Link>
+              </>
+            )}
+            {role === "SUPERADMIN" && (
                 <>
                   <Link href="/admin/users" className={`header-nav-link ${pathname.includes('/admin/users') ? 'active' : ''}`}>
                     <Users size={16} /> Users
@@ -127,7 +150,10 @@ export function Header() {
                     <Inbox size={16} /> Queue
                   </Link>
                   <Link href="/review/skills" className={`header-nav-link ${pathname.includes('/review/skills') ? 'active' : ''}`}>
-                    <BookOpen size={16} /> All Skills
+                    <BookOpen size={16} /> Review Skills
+                  </Link>
+                  <Link href="/skills" className={`header-nav-link ${pathname === '/skills' ? 'active' : ''}`}>
+                    <Compass size={16} /> All Skills
                   </Link>
                 </>
               )}
@@ -139,14 +165,16 @@ export function Header() {
                   <Link href="/studio/skills" className={`header-nav-link ${pathname === '/studio/skills' ? 'active' : ''}`}>
                     <BookOpen size={16} /> My Skills
                   </Link>
+                  <Link href="/skills" className={`header-nav-link ${pathname === '/skills' ? 'active' : ''}`}>
+                    <Compass size={16} /> All Skills
+                  </Link>
                 </>
               )}
             </nav>
-          )}
         </div>
 
         <div className="header-actions">
-          {role && (
+          {role === "AUTHOR" && (
             <Link href="/studio/skills/new" className="header-icon-btn" aria-label="Create new skill">
               <PlusSquare size={18} />
             </Link>
@@ -171,25 +199,23 @@ export function Header() {
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{session?.user?.email}</p>
                   </div>
                   <div className="dropdown-divider"></div>
-                  <Link href="/studio/skills/new" className="dropdown-item">
-                    <span>Create Skill</span>
-                  </Link>
-                  <button className="dropdown-item">
-                    <span>Profile</span>
-                  </button>
-                  <button className="dropdown-item">
-                    <span>Billing</span>
-                  </button>
+                  {role === "AUTHOR" && (
+                    <Link href="/studio/skills/new" className="dropdown-item">
+                      <span>Create Skill</span>
+                    </Link>
+                  )}
                   <button className="dropdown-item flex items-center justify-between">
-                    <span>Appearance</span>
+                    <div className="flex items-center gap-2">
+                      <User size={14} className="text-zinc-500" />
+                      <span>Profile</span>
+                    </div>
                     <ChevronRight size={14} className="text-zinc-400" />
                   </button>
                   <button className="dropdown-item flex items-center justify-between">
-                    <span>Language</span>
-                    <ChevronRight size={14} className="text-zinc-400" />
-                  </button>
-                  <button className="dropdown-item flex items-center justify-between">
-                    <span>Timezone</span>
+                    <div className="flex items-center gap-2">
+                      <Settings size={14} className="text-zinc-500" />
+                      <span>Setting</span>
+                    </div>
                     <ChevronRight size={14} className="text-zinc-400" />
                   </button>
                   <div className="dropdown-divider"></div>
@@ -202,6 +228,15 @@ export function Header() {
                 </div>
               )}
             </div>
+          )}
+
+          {!session && (
+            <Link 
+              href="/auth/login" 
+              className="ml-2 px-3 py-1.5 text-sm font-medium bg-[var(--primary)] text-zinc-900 rounded-md hover:opacity-90 transition-opacity"
+            >
+              Sign in
+            </Link>
           )}
         </div>
       </div>

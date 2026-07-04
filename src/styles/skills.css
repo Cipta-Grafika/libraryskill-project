@@ -316,6 +316,26 @@
   text-decoration: underline;
 }
 
+.skills-table-action-danger {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ef4444;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.skills-table-action-danger:hover {
+  color: #dc2626;
+  text-decoration: underline;
+}
+
+.dark .skills-table-action-danger {
+  color: #f87171;
+}
+.dark .skills-table-action-danger:hover {
+  color: #ef4444;
+}
+
 /* Table Footer (Pagination info) */
 .skills-table-footer {
   display: flex;

@@ -1,0 +1,165 @@
+name: Bug Report
+description: Laporkan bug/issue agar bisa ditriage dan diperbaiki dengan cepat.
+title: "[BUG] "
+labels: ["bug"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Laporan Bug (LibrarySkill Project)
+        Isi form ini selengkap mungkin agar tim bisa langsung melakukan *reproduce*, menganalisis, dan memperbaiki *error* yang terjadi.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Ringkasan Bug
+      description: Jelaskan bug secara singkat dan jelas.
+      placeholder: "Contoh: Saat mencari skill dengan keyword tertentu di halaman public, muncul error 500."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: affected_route_group
+    attributes:
+      label: Modul / Area Terdampak
+      description: Pilih area modul yang mengalami kendala.
+      options:
+        - Auth & Session (/auth/login)
+        - Halaman Public (/skills, /docs)
+        - Dashboard Studio / Author (/studio)
+        - Sistem Review (/review)
+        - Dashboard Admin (/admin)
+        - Manajemen Kategori (/admin/categories)
+        - Manajemen Pengguna (/admin/users)
+        - Log & Audit (/admin/logs)
+        - Pencarian / Search Modal
+        - Lainnya / Komponen Global
+    validations:
+      required: true
+
+  - type: input
+    id: affected_route_exact
+    attributes:
+      label: URL / Path Spesifik
+      description: Path spesifik tempat error terjadi.
+      placeholder: "Contoh: /admin/categories atau /studio/skills/new"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: affected_layers
+    attributes:
+      label: Layer Terdampak (Opsional)
+      description: Centang jika Anda mengetahui bagian teknis mana yang bermasalah.
+      options:
+        - label: React Components (UI / Client / Server Components)
+        - label: Next.js Pages & Layouts (App Router)
+        - label: API Routes / Server Actions
+        - label: Database / Prisma Models / Middleware
+        - label: Styling (Tailwind CSS / Custom CSS)
+        - label: Autentikasi (NextAuth)
+
+  - type: dropdown
+    id: scenario
+    attributes:
+      label: Skenario Kejadian
+      description: Pilih aksi apa yang sedang dilakukan saat bug muncul.
+      options:
+        - Memuat halaman pertama kali (Initial Load / Hydration)
+        - Menyimpan/Update Form atau Markdown Editor
+        - Filter / Search / Pagination
+        - Membuka Modal UI / Pop-up
+        - Menekan tombol aksi (Publish/Approve/Reject/Delete)
+        - Autentikasi / Sesi habis
+        - Lainnya
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce_steps
+    attributes:
+      label: Langkah Reproduksi (Steps to Reproduce)
+      description: Berikan langkah urut agar bug bisa dipicu ulang oleh developer.
+      placeholder: |
+        1. Login sebagai Admin
+        2. Buka menu kategori (/admin/categories)
+        3. Ketikkan "Web" di kolom pencarian
+        4. Halaman blank/nge-freeze
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Hasil yang Diharapkan (Expected Behavior)
+      placeholder: "Halaman memfilter data kategori dengan cepat dan tidak freeze."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual_behavior
+    attributes:
+      label: Hasil Aktual (Actual Behavior)
+      placeholder: "Halaman langsung freeze dan muncul error 'Hydration Mismatch' di console."
+    validations:
+      required: true
+
+  - type: textarea
+    id: application_logs
+    attributes:
+      label: Log Error (Opsional)
+      description: Cantumkan cuplikan log dari Terminal Next.js (Server) atau Console Browser (DevTools) jika ada.
+      placeholder: "Error: PrismaClientKnownRequestError: ..."
+      render: shell
+    validations:
+      required: false
+
+  - type: input
+    id: user_role
+    attributes:
+      label: Role User
+      description: Role user yang digunakan saat error terjadi.
+      placeholder: "Contoh: Superadmin / Reviewer / Author / Public (Tanpa Login)"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment (Browser/OS)
+      description: Informasi perangkat dan browser yang digunakan.
+      placeholder: "Contoh: Chrome Desktop macOS / Safari iOS Mobile"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Dampak Bisnis / Urgensi
+      options:
+        - Blocker (Fitur utama mati total / Error 500)
+        - High (Fungsi terganggu parah, misal page freeze/crash)
+        - Medium (Ada fitur gagal tapi masih ada jalan pintas)
+        - Low (Hanya isu tampilan/kosmetik)
+    validations:
+      required: true
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Screenshot / Video
+      description: Tarik dan lepas (Drag & Drop) gambar atau paste link bukti visual di sini.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist Reporter
+      options:
+        - label: Saya sudah menuliskan langkah reproduksi yang jelas.
+          required: true
+        - label: Saya menggunakan issue ini murni untuk melaporkan Bug, bukan Feature Request.
+          required: true

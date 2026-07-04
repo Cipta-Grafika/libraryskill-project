@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Search, Filter, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Eye, Edit3, Trash2 } from "lucide-react";
+import { Search, Filter, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, AlertCircle, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -10,6 +10,7 @@ type Skill = {
   title: string;
   status: string;
   createdAt: Date;
+  slug: string;
   category?: { name: string } | null;
 };
 
@@ -23,6 +24,8 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
   const [skills, setSkills] = useState<Skill[]>(initialSkills);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -48,8 +51,8 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
 
     if (sortConfig) {
       filtered = [...filtered].sort((a, b) => {
-        let aVal: any = sortConfig.key === 'categoryName' ? (a.category?.name || "") : a[sortConfig.key as keyof Skill];
-        let bVal: any = sortConfig.key === 'categoryName' ? (b.category?.name || "") : b[sortConfig.key as keyof Skill];
+        let aVal: string | number | Date = sortConfig.key === 'categoryName' ? (a.category?.name || "") : (a[sortConfig.key as keyof Skill] as string | number | Date);
+        let bVal: string | number | Date = sortConfig.key === 'categoryName' ? (b.category?.name || "") : (b[sortConfig.key as keyof Skill] as string | number | Date);
         
         if (aVal === null || aVal === undefined) aVal = "";
         if (bVal === null || bVal === undefined) bVal = "";
@@ -99,18 +102,26 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
     setSelectedIds(newSet);
   };
 
-  const deleteSkill = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this skill?")) return;
+  const handleDeleteClick = (id: string) => {
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDeleteSkill = async () => {
+    if (!deleteConfirmId) return;
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/skills/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/skills/${deleteConfirmId}`, { method: "DELETE" });
       if (res.ok) {
-        setSkills(skills.filter(s => s.id !== id));
+        setSkills(skills.filter(s => s.id !== deleteConfirmId));
         router.refresh();
       } else {
         alert("Failed to delete skill");
       }
     } catch {
       alert("Error deleting skill");
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirmId(null);
     }
   };
 
@@ -208,26 +219,23 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
                     <td className="skills-td skills-td-name" title={s.title}>{s.title}</td>
                     <td className="skills-td text-zinc-500" title={s.category?.name || "Uncategorized"}>{s.category?.name || "Uncategorized"}</td>
                     <td className="skills-td" style={{ textOverflow: 'clip' }}>
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
-                        ${s.status === "PUBLISHED" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
-                          s.status === "IN_REVIEW" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                          s.status === "REJECTED" ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" :
-                          "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                        }`}
-                      >
-                        {s.status}
+                      <span className={`review-badge ${
+                        s.status === "ARCHIVED" ? "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400" :
+                        s.status.toLowerCase()
+                      }`}>
+                        {s.status === "IN_REVIEW" ? "IN REVIEW" : s.status}
                       </span>
                     </td>
                     <td className="skills-td" style={{ textOverflow: 'clip' }}>{new Date(s.createdAt).toLocaleDateString()}</td>
                     <td className="skills-td text-right">
                       <div className="flex justify-end gap-3">
-                        <Link href={`/skills/${s.id}`} target="_blank" className="skills-table-action-btn">
+                        <Link href={`/studio/skills/view/${s.slug}`} target="_blank" className="skills-table-action-btn">
                           View
                         </Link>
-                        <Link href={`/studio/skills/${s.id}/edit`} className="skills-table-action-btn">
+                        <Link href={`/studio/skills/edit/${s.slug}`} className="skills-table-action-btn">
                           Edit
                         </Link>
-                        <button onClick={() => deleteSkill(s.id)} className="skills-table-action-btn text-red-500">
+                        <button onClick={() => handleDeleteClick(s.id)} className="skills-table-action-danger">
                           Delete
                         </button>
                       </div>
@@ -259,6 +267,45 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="alert-overlay" onClick={() => !isDeleting && setDeleteConfirmId(null)}>
+          <div className="alert-modal" onClick={e => e.stopPropagation()}>
+            <div className="alert-header">
+              <div className="alert-title-container">
+                <AlertCircle className="alert-icon alert-icon-error" />
+                <h3 className="alert-title">Delete Skill</h3>
+              </div>
+              <button type="button" className="alert-close-btn" onClick={() => !isDeleting && setDeleteConfirmId(null)} disabled={isDeleting}>
+                <X size={16} />
+              </button>
+            </div>
+            <div className="alert-body">
+              <p className="alert-message">Are you sure you want to delete this skill? This action cannot be undone.</p>
+            </div>
+            <div className="alert-footer flex justify-end gap-3 mt-4">
+              <button 
+                type="button"
+                className="skills-btn skills-btn-outline" 
+                onClick={() => setDeleteConfirmId(null)} 
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button"
+                className="skills-btn" 
+                style={{ backgroundColor: 'var(--danger, #ef4444)', color: 'white', border: 'none' }}
+                onClick={confirmDeleteSkill} 
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Confirm Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

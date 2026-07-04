@@ -11,10 +11,14 @@ import "@/styles/studio.css";
 import "@/styles/review.css";
 import "@/styles/public-skill.css";
 import "@/styles/error.css";
+import "@/styles/page-banner.css";
+import "@/styles/footer.css";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { AlertProvider } from "@/components/AlertProvider";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,19 +35,21 @@ export const metadata: Metadata = {
   description: "Prompt documentation hub",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-300">
-        <AuthProvider>
+      <body className="min-h-full flex flex-col bg-background text-foreground font-sans transition-colors duration-300" suppressHydrationWarning>
+        <AuthProvider session={session}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <AlertProvider>
               {children}
