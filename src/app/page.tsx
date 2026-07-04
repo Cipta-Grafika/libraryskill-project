@@ -1,11 +1,12 @@
 import { Header } from "@/components/Header";
+
 import Link from "next/link";
 import { ArrowRight, BookOpen, Search, ShieldCheck } from "lucide-react";
 import "@/styles/landing.css";
 
 export default function Home() {
   return (
-    <div className="landing-layout min-h-screen flex flex-col font-sans">
+    <div className="landing-layout min-h-screen flex flex-col">
       <Header />
       
       <main className="landing-main flex-grow flex flex-col items-center">
@@ -27,7 +28,7 @@ export default function Home() {
           </p>
           
           <div className="landing-cta-group">
-            <Link href="/auth/login" className="landing-btn-primary">
+            <Link href="/skills" className="landing-btn-primary">
               Start Exploring <ArrowRight size={18} />
             </Link>
             <Link href="/frontend-development/prompt-engineering" className="landing-btn-secondary">
