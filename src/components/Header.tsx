@@ -60,13 +60,13 @@ export function Header() {
             
             {mobileMenuOpen && (
               <nav className="mobile-menu-dropdown">
-                {!role && status !== "loading" && (
+                {!role && (
                   <>
-                    <Link href="/skills" className={`mobile-nav-link ${pathname === '/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                      <Compass size={16} /> All Skills
+                    <Link href="/skills" className={`mobile-nav-link ${pathname.includes('/skills') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Compass size={16} /> <span>All Skills</span>
                     </Link>
                     <Link href="/docs" className={`mobile-nav-link ${pathname.includes('/docs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                      <BookOpen size={16} /> Docs
+                      <BookOpen size={16} /> <span>Docs</span>
                     </Link>
                   </>
                 )}
@@ -118,13 +118,13 @@ export function Header() {
 
           {/* Navigation Menu */}
           <nav className="header-nav">
-            {!role && status !== "loading" && (
+            {!role && (
               <>
-                <Link href="/skills" className={`header-nav-link ${pathname === '/skills' ? 'active' : ''}`}>
-                  <Compass size={16} /> All Skills
+                <Link href="/skills" className={`header-nav-link ${pathname.includes('/skills') ? 'active' : ''}`}>
+                  <Compass size={16} /> <span>All Skills</span>
                 </Link>
                 <Link href="/docs" className={`header-nav-link ${pathname.includes('/docs') ? 'active' : ''}`}>
-                  <BookOpen size={16} /> Docs
+                  <BookOpen size={16} /> <span>Docs</span>
                 </Link>
               </>
             )}
@@ -230,11 +230,7 @@ export function Header() {
             </div>
           )}
 
-          {status === "loading" && (
-            <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 animate-pulse ml-2"></div>
-          )}
-
-          {!session && status !== "loading" && (
+          {!session && (
             <Link 
               href="/auth/login" 
               className="ml-2 px-3 py-1.5 text-sm font-medium bg-[var(--primary)] text-zinc-900 rounded-md hover:opacity-90 transition-opacity"

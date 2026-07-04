@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Search, Filter, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Eye, Edit3, Trash2 } from "lucide-react";
+import { Search, Filter, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Eye, Edit3, Trash2, AlertCircle, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -23,6 +23,8 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
   const [skills, setSkills] = useState<Skill[]>(initialSkills);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -99,18 +101,26 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
     setSelectedIds(newSet);
   };
 
-  const deleteSkill = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this skill?")) return;
+  const handleDeleteClick = (id: string) => {
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDeleteSkill = async () => {
+    if (!deleteConfirmId) return;
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/skills/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/skills/${deleteConfirmId}`, { method: "DELETE" });
       if (res.ok) {
-        setSkills(skills.filter(s => s.id !== id));
+        setSkills(skills.filter(s => s.id !== deleteConfirmId));
         router.refresh();
       } else {
         alert("Failed to delete skill");
       }
     } catch {
       alert("Error deleting skill");
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirmId(null);
     }
   };
 
@@ -224,7 +234,7 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
                         <Link href={`/studio/skills/edit/${s.slug}`} className="skills-table-action-btn">
                           Edit
                         </Link>
-                        <button onClick={() => deleteSkill(s.id)} className="skills-table-action-danger">
+                        <button onClick={() => handleDeleteClick(s.id)} className="skills-table-action-danger">
                           Delete
                         </button>
                       </div>
@@ -256,6 +266,45 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="alert-overlay" onClick={() => !isDeleting && setDeleteConfirmId(null)}>
+          <div className="alert-modal" onClick={e => e.stopPropagation()}>
+            <div className="alert-header">
+              <div className="alert-title-container">
+                <AlertCircle className="alert-icon alert-icon-error" />
+                <h3 className="alert-title">Delete Skill</h3>
+              </div>
+              <button type="button" className="alert-close-btn" onClick={() => !isDeleting && setDeleteConfirmId(null)} disabled={isDeleting}>
+                <X size={16} />
+              </button>
+            </div>
+            <div className="alert-body">
+              <p className="alert-message">Are you sure you want to delete this skill? This action cannot be undone.</p>
+            </div>
+            <div className="alert-footer flex justify-end gap-3 mt-4">
+              <button 
+                type="button"
+                className="skills-btn skills-btn-outline" 
+                onClick={() => setDeleteConfirmId(null)} 
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button"
+                className="skills-btn" 
+                style={{ backgroundColor: 'var(--danger, #ef4444)', color: 'white', border: 'none' }}
+                onClick={confirmDeleteSkill} 
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Confirm Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

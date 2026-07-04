@@ -6,7 +6,7 @@ import "@/styles/landing.css";
 
 export default function Home() {
   return (
-    <div className="landing-layout min-h-screen flex flex-col font-sans">
+    <div className="landing-layout min-h-screen flex flex-col">
       <Header />
       
       <main className="landing-main flex-grow flex flex-col items-center">
