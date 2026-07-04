@@ -1,9 +1,7 @@
 import { db as prisma } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
-import { Metadata, ResolvingMetadata } from "next";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import Link from "next/link";
 import { BookOpen, User } from "lucide-react";
 import modelsData from "@/data/models.json";
 import { getServerSession } from "next-auth";

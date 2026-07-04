@@ -52,6 +52,7 @@ export default function NewSkillPage() {
     if (draft) {
       try {
         const parsed = JSON.parse(draft);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (parsed.title) setTitle(parsed.title);
         if (parsed.description) setDescription(parsed.description);
         if (parsed.categoryId) setCategoryId(parsed.categoryId);

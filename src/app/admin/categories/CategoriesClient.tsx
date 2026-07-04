@@ -65,8 +65,8 @@ export default function CategoriesClient({ initialCategories }: { initialCategor
 
     if (sortConfig) {
       filtered = [...filtered].sort((a, b) => {
-        let aVal: any = sortConfig.key === 'skillsCount' ? (a._count?.skills || 0) : a[sortConfig.key as keyof Category];
-        let bVal: any = sortConfig.key === 'skillsCount' ? (b._count?.skills || 0) : b[sortConfig.key as keyof Category];
+        let aVal: string | number = sortConfig.key === 'skillsCount' ? (a._count?.skills || 0) : (a[sortConfig.key as keyof Category] as string | number);
+        let bVal: string | number = sortConfig.key === 'skillsCount' ? (b._count?.skills || 0) : (b[sortConfig.key as keyof Category] as string | number);
         
         if (aVal === null || aVal === undefined) aVal = "";
         if (bVal === null || bVal === undefined) bVal = "";

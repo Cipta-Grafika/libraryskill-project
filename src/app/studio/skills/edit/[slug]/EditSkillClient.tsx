@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
 import { useAlert } from "@/components/AlertProvider";
@@ -18,7 +18,7 @@ type ContentBlock = {
   content: string;
 };
 
-export default function EditSkillClient({ initialData }: { initialData: any }) {
+export default function EditSkillClient({ initialData }: { initialData: { id: string, title?: string, description?: string | null, categoryId?: string | null, status: string, tags?: string[], blocks?: ContentBlock[] } }) {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [title, setTitle] = useState(initialData.title || "");

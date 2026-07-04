@@ -1,6 +1,7 @@
 "use server";
 
 import { db as prisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 
@@ -76,7 +77,7 @@ export async function updateUser(id: string, formData: FormData) {
       return { error: "Email is already in use by another user" };
     }
 
-    const dataToUpdate: any = {
+    const dataToUpdate: Prisma.UserUpdateInput = {
       name,
       email,
       role,

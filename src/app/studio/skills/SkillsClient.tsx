@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Search, Filter, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Eye, Edit3, Trash2, AlertCircle, X } from "lucide-react";
+import { Search, Filter, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, AlertCircle, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -10,6 +10,7 @@ type Skill = {
   title: string;
   status: string;
   createdAt: Date;
+  slug: string;
   category?: { name: string } | null;
 };
 
@@ -50,8 +51,8 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
 
     if (sortConfig) {
       filtered = [...filtered].sort((a, b) => {
-        let aVal: any = sortConfig.key === 'categoryName' ? (a.category?.name || "") : a[sortConfig.key as keyof Skill];
-        let bVal: any = sortConfig.key === 'categoryName' ? (b.category?.name || "") : b[sortConfig.key as keyof Skill];
+        let aVal: string | number | Date = sortConfig.key === 'categoryName' ? (a.category?.name || "") : (a[sortConfig.key as keyof Skill] as string | number | Date);
+        let bVal: string | number | Date = sortConfig.key === 'categoryName' ? (b.category?.name || "") : (b[sortConfig.key as keyof Skill] as string | number | Date);
         
         if (aVal === null || aVal === undefined) aVal = "";
         if (bVal === null || bVal === undefined) bVal = "";

@@ -1,9 +1,5 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { Header } from "@/components/Header";
 import { DashboardSearch } from "@/components/DashboardSearch";
-import { Globe, Rocket, History, Plus, ChevronRight, Sparkles } from "lucide-react";
+import { Rocket, Plus, ChevronRight, Sparkles } from "lucide-react";
 import { db } from "@/lib/db";
 import Link from "next/link";
 

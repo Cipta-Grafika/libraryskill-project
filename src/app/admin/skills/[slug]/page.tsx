@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { formatDistanceToNow } from "date-fns";
-import { ChevronLeft, User, Clock } from "lucide-react";
+import { User, Clock } from "lucide-react";
 import Link from "next/link";
 import { PageBanner } from "@/components/PageBanner";
 

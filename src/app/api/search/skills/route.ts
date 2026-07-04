@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/lib/db";
+import { SkillStatus } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status");
 
     const skills = await db.skill.findMany({
-      where: status ? { status: status as any } : undefined,
+      where: status ? { status: status as SkillStatus } : undefined,
       select: {
         id: true,
         title: true,

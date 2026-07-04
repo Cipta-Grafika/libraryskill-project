@@ -47,6 +47,7 @@ export function DashboardSearch({
       }
     }
     fetchSkills();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Debounce the query input
@@ -64,6 +65,7 @@ export function DashboardSearch({
 
   // Reset selected index when debounced query changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedIndex(0);
   }, [debouncedQuery]);
 
@@ -115,6 +117,7 @@ export function DashboardSearch({
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, filteredSkills, selectedIndex, router]);
 
   return (
@@ -172,7 +175,7 @@ export function DashboardSearch({
               })
             ) : (
               <div className="p-4 text-center text-sm text-[var(--studio-text-muted)]">
-                No skills found matching "{query}"
+                No skills found matching &quot;{query}&quot;
               </div>
             )}
           </div>
