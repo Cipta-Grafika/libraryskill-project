@@ -1,4 +1,5 @@
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -22,7 +23,10 @@ export default async function ReviewLayout({
   return (
     <>
       <Header />
-      {children}
+      <main>
+        {children}
+      </main>
+      <Footer />
     </>
   );
 }

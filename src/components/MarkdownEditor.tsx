@@ -17,7 +17,7 @@ interface MarkdownEditorProps {
   hideTabs?: boolean;
 }
 
-export function MarkdownEditor({ value, onChange, placeholder = "Mulai menulis di sini...", hideTabs = false }: MarkdownEditorProps) {
+export function MarkdownEditor({ value, onChange, hideTabs = false }: MarkdownEditorProps) {
   const [viewMode, setViewMode] = useState<"code" | "preview">("code");
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -41,14 +41,14 @@ export function MarkdownEditor({ value, onChange, placeholder = "Mulai menulis d
       },
     },
     onUpdate: ({ editor }) => {
-      const md = (editor.storage as any).markdown.getMarkdown();
+      const md = (editor.storage as unknown as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown();
       onChange(md);
     },
   });
 
   // Handle external value changes (e.g. loading from DB)
   useEffect(() => {
-    if (editor && value !== (editor.storage as any).markdown.getMarkdown()) {
+    if (editor && value !== (editor.storage as unknown as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown()) {
       // Only set content if it differs from what editor currently has
       editor.commands.setContent(value);
     }

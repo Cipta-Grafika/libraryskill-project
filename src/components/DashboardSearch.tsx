@@ -1,13 +1,73 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, Sparkles, LogIn, BrainCircuit, Code, Database, ArrowRight } from "lucide-react";
+import { Search, Sparkles, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-export function DashboardSearch() {
+interface SearchSkill {
+  id: string;
+  title: string;
+  slug: string;
+  category: {
+    name: string;
+    slug: string;
+  } | null;
+}
+
+export function DashboardSearch({ 
+  basePath = "/admin/skills",
+  apiEndpoint = "/api/search/skills",
+  isPublicSearch = false
+}: { 
+  basePath?: string;
+  apiEndpoint?: string;
+  isPublicSearch?: boolean;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [skills, setSkills] = useState<SearchSkill[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Fetch skills when component mounts
+    async function fetchSkills() {
+      try {
+        const res = await fetch(apiEndpoint);
+        if (res.ok) {
+          const data = await res.json();
+          setSkills(data);
+        }
+      } catch (error) {
+        console.error("Error fetching skills for search:", error);
+      }
+    }
+    fetchSkills();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Debounce the query input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300); // 300ms debounce
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const filteredSkills = skills.filter((skill) => {
+    const searchString = `${skill.category?.name || 'uncategorized'} ${skill.title}`.toLowerCase();
+    return searchString.includes(debouncedQuery.toLowerCase());
+  });
+
+  // Reset selected index when debounced query changes
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelectedIndex(0);
+  }, [debouncedQuery]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -19,22 +79,46 @@ export function DashboardSearch() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Keyboard shortcut cmd+k to focus
+  // Keyboard navigation
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      // cmd+k or ctrl+k to focus
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         inputRef.current?.focus();
         setIsOpen(true);
+        return;
       }
+      
+      if (!isOpen) return;
+
       if (e.key === "Escape") {
         setIsOpen(false);
         inputRef.current?.blur();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedIndex((prev) => Math.min(prev + 1, filteredSkills.length - 1));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedIndex((prev) => Math.max(prev - 1, 0));
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (filteredSkills.length > 0 && selectedIndex >= 0) {
+          const selectedSkill = filteredSkills[selectedIndex];
+          if (isPublicSearch && selectedSkill.category) {
+            router.push(`/${selectedSkill.category.slug}/${selectedSkill.slug}`);
+          } else {
+            router.push(`${basePath}/${selectedSkill.slug}`);
+          }
+          setIsOpen(false);
+          inputRef.current?.blur();
+        }
       }
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, filteredSkills, selectedIndex, router]);
 
   return (
     <div className="search-wrapper" ref={containerRef}>
@@ -55,46 +139,45 @@ export function DashboardSearch() {
         </div>
       </div>
 
-      {isOpen && (
+      {isOpen && debouncedQuery.trim().length > 0 && (
         <div className="search-modal">
-          <div className="search-modal-header">Search tips</div>
-          <div className="search-modal-list">
-            <div className="search-modal-item">
-              <div className="search-modal-item-icon">
-                <Sparkles size={16} />
+          <div className="search-modal-header">
+            {filteredSkills.length} Skills Found
+          </div>
+          <div className="search-modal-list overflow-y-auto max-h-[400px]">
+            {filteredSkills.length > 0 ? (
+              filteredSkills.map((skill, index) => {
+                const isSelected = index === selectedIndex;
+                const catName = skill.category?.name?.toLowerCase() || 'uncategorized';
+                
+                return (
+                  <div 
+                    key={skill.id} 
+                    className={`search-modal-item ${isSelected ? 'active' : ''}`}
+                    onMouseEnter={() => setSelectedIndex(index)}
+                    onClick={() => {
+                      if (isPublicSearch && skill.category) {
+                        router.push(`/${skill.category.slug}/${skill.slug}`);
+                      } else {
+                        router.push(`${basePath}/${skill.slug}`);
+                      }
+                      setIsOpen(false);
+                    }}
+                  >
+                    <div className="search-modal-item-icon">
+                      <Sparkles size={16} />
+                    </div>
+                    <span className="search-modal-item-title">{catName}:</span>
+                    <span className="search-modal-item-desc">— {skill.title}</span>
+                    <ArrowRight size={14} className={`search-modal-item-arrow ${isSelected ? 'opacity-100 text-[var(--dash-text)]' : ''}`} />
+                  </div>
+                );
+              })
+            ) : (
+              <div className="p-4 text-center text-sm text-[var(--studio-text-muted)]">
+                No skills found matching &quot;{query}&quot;
               </div>
-              <span className="search-modal-item-title">ask:</span>
-              <span className="search-modal-item-desc">— Ask AI</span>
-              <ArrowRight size={14} className="search-modal-item-arrow" />
-            </div>
-            <div className="search-modal-item">
-              <div className="search-modal-item-icon">
-                <LogIn size={16} />
-              </div>
-              <span className="search-modal-item-title">access:</span>
-              <span className="search-modal-item-desc">— Search Access applications</span>
-            </div>
-            <div className="search-modal-item">
-              <div className="search-modal-item-icon">
-                <BrainCircuit size={16} />
-              </div>
-              <span className="search-modal-item-title">aig:</span>
-              <span className="search-modal-item-desc">— Search AI Gateways</span>
-            </div>
-            <div className="search-modal-item">
-              <div className="search-modal-item-icon">
-                <Code size={16} />
-              </div>
-              <span className="search-modal-item-title">containers:</span>
-              <span className="search-modal-item-desc">— Search Container applications</span>
-            </div>
-            <div className="search-modal-item">
-              <div className="search-modal-item-icon">
-                <Database size={16} />
-              </div>
-              <span className="search-modal-item-title">d1:</span>
-              <span className="search-modal-item-desc">— Search D1 databases</span>
-            </div>
+            )}
           </div>
           <div className="search-modal-footer">
             <div className="search-modal-footer-item">

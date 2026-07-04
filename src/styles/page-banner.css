@@ -1,0 +1,40 @@
+/* src/styles/page-banner.css */
+.page-banner {
+  position: sticky;
+  top: 3.5rem; /* Height of the main header */
+  z-index: 30;
+  width: 100%;
+  background-color: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.page-banner-container {
+  display: flex;
+  height: 3rem; /* Slightly smaller than main header (h-12) */
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  max-width: 100%;
+}
+
+.page-banner-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--header-text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.page-banner-back:hover {
+  color: var(--header-text);
+}
+
+.page-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}

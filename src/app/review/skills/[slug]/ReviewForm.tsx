@@ -33,8 +33,8 @@ export function ReviewForm({ skillId, initialStatus }: ReviewFormProps) {
 
   if (initialStatus !== "IN_REVIEW") {
     return (
-      <div className="review-panel">
-        <h3 className="font-semibold text-lg border-b border-zinc-200 dark:border-zinc-800 pb-2 mb-2">Review Status</h3>
+      <div className="p-4 md:p-5">
+        <h3 className="text-sm font-semibold mb-4 flex items-center gap-2 text-[var(--studio-text)]">Review Status</h3>
         <p className="text-sm text-zinc-500">
           This skill has already been reviewed and is currently marked as <strong>{initialStatus}</strong>.
         </p>
@@ -43,9 +43,9 @@ export function ReviewForm({ skillId, initialStatus }: ReviewFormProps) {
   }
 
   return (
-    <form action={handleSubmit} className="review-panel">
+    <form action={handleSubmit} className="p-4 md:p-5">
       <div>
-        <h3 className="font-semibold text-lg border-b border-zinc-200 dark:border-zinc-800 pb-2 mb-4">Submit Review</h3>
+        <h3 className="text-sm font-semibold mb-4 flex items-center gap-2 text-[var(--studio-text)]">Submit Review</h3>
         <input type="hidden" name="skillId" value={skillId} />
         
         <div className="review-radio-group mb-6">

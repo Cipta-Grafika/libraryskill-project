@@ -3,12 +3,12 @@
 .landing-layout {
   background-color: var(--studio-bg);
   color: var(--studio-text);
-  overflow-x: hidden;
 }
 
 .landing-main {
   position: relative;
   z-index: 1;
+  overflow-x: hidden;
 }
 
 /* Background gradient effect for modern minimalist feel */
