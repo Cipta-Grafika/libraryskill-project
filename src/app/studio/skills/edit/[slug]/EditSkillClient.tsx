@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
 import { useAlert } from "@/components/AlertProvider";
@@ -18,24 +18,17 @@ type ContentBlock = {
   content: string;
 };
 
-export default function NewSkillPage() {
+export default function EditSkillClient({ initialData }: { initialData: { id: string, title?: string, description?: string | null, categoryId?: string | null, status: string, tags?: string[], blocks?: ContentBlock[] } }) {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
+  const [title, setTitle] = useState(initialData.title || "");
+  const [description, setDescription] = useState(initialData.description || "");
+  const [tags, setTags] = useState<string[]>(initialData.tags || []);
   const [tagInput, setTagInput] = useState("");
   
-  const [blocks, setBlocks] = useState<ContentBlock[]>([
-    { id: "1", title: "Peran (Role)", content: "" },
-    { id: "2", title: "Batasan (Scope)", content: "" },
-    { id: "3", title: "Objektif (Objective)", content: "" },
-  ]);
-
-  const [categoryId, setCategoryId] = useState("");
+  const [blocks, setBlocks] = useState<ContentBlock[]>(initialData.blocks || []);
+  const [categoryId, setCategoryId] = useState(initialData.categoryId || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const isNavigatingAway = useRef(true);
   const { showAlert } = useAlert();
 
   useEffect(() => {
@@ -47,44 +40,7 @@ export default function NewSkillPage() {
       .catch((err) => console.error("Failed to fetch categories", err));
   }, []);
 
-  useEffect(() => {
-    const draft = sessionStorage.getItem("new_skill_draft");
-    if (draft) {
-      try {
-        const parsed = JSON.parse(draft);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        if (parsed.title) setTitle(parsed.title);
-        if (parsed.description) setDescription(parsed.description);
-        if (parsed.categoryId) setCategoryId(parsed.categoryId);
-        if (parsed.tags && Array.isArray(parsed.tags)) setTags(parsed.tags);
-        if (parsed.blocks && Array.isArray(parsed.blocks)) setBlocks(parsed.blocks);
-      } catch (e) {
-        console.error("Failed to parse draft", e);
-      }
-    }
-    setIsLoaded(true);
-
-    const handleBeforeUnload = () => {
-      isNavigatingAway.current = false;
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      if (isNavigatingAway.current) {
-        sessionStorage.removeItem("new_skill_draft");
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isLoaded) {
-      const draft = { title, description, categoryId, tags, blocks };
-      sessionStorage.setItem("new_skill_draft", JSON.stringify(draft));
-    }
-  }, [title, description, categoryId, tags, blocks, isLoaded]);
-
-  const handleSubmit = async (e: React.FormEvent, status: "DRAFT" | "IN_REVIEW" | "PUBLISHED" = "DRAFT") => {
+  const handleSubmit = async (e: React.FormEvent, status: "DRAFT" | "IN_REVIEW" | "PUBLISHED" | "ARCHIVED" = "DRAFT") => {
     e.preventDefault();
     
     const finalContent = blocks
@@ -99,8 +55,8 @@ export default function NewSkillPage() {
 
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/skills", {
-        method: "POST",
+      const res = await fetch(`/api/skills/${initialData.id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
@@ -113,13 +69,11 @@ export default function NewSkillPage() {
       });
 
       if (res.ok) {
-        isNavigatingAway.current = false;
-        sessionStorage.removeItem("new_skill_draft");
         router.push("/studio/skills");
         router.refresh();
       } else {
         const error = await res.json();
-        showAlert({ type: "error", title: "Gagal Disimpan", message: error.message || "Failed to create skill" });
+        showAlert({ type: "error", title: "Gagal Disimpan", message: error.message || "Failed to update skill" });
       }
     } catch {
       showAlert({ type: "error", title: "Terjadi Kesalahan", message: "An unexpected error occurred" });
@@ -131,24 +85,26 @@ export default function NewSkillPage() {
   return (
     <div className="studio-container w-full">
       <div className="studio-header">
-        <h1 className="studio-title">Create New Skill</h1>
+        <h1 className="studio-title">Edit Skill</h1>
         <div className="studio-actions">
           <button
             type="button"
-            onClick={(e) => handleSubmit(e, "DRAFT")}
+            onClick={(e) => handleSubmit(e, initialData.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT")}
             disabled={isSubmitting}
             className="studio-btn studio-btn-secondary"
           >
-            Save Draft
+            {initialData.status === "PUBLISHED" ? "Save Changes" : "Save Draft"}
           </button>
-          <button
-            type="button"
-            onClick={(e) => handleSubmit(e, "IN_REVIEW")}
-            disabled={isSubmitting}
-            className="studio-btn studio-btn-primary"
-          >
-            Submit for Review
-          </button>
+          {initialData.status !== "PUBLISHED" && (
+            <button
+              type="button"
+              onClick={(e) => handleSubmit(e, "IN_REVIEW")}
+              disabled={isSubmitting}
+              className="studio-btn studio-btn-primary"
+            >
+              Submit for Review
+            </button>
+          )}
         </div>
       </div>
 

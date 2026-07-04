@@ -74,3 +74,25 @@ export async function updateCategory(id: string, formData: FormData) {
     return { error: "Failed to update category" };
   }
 }
+
+export async function deleteCategory(id: string) {
+  try {
+    const { getServerSession } = await import("next-auth/next");
+    const { authOptions } = await import("@/lib/auth");
+    const session = await getServerSession(authOptions);
+    
+    if (!session || session.user?.role !== "SUPERADMIN") {
+      return { error: "Unauthorized. Only superadmins can delete categories." };
+    }
+
+    await prisma.category.delete({
+      where: { id },
+    });
+
+    revalidatePath("/admin/categories");
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting category:", error);
+    return { error: "Failed to delete category" };
+  }
+}

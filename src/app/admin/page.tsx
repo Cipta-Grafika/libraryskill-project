@@ -1,95 +1,62 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { Header } from "@/components/Header";
 import { DashboardSearch } from "@/components/DashboardSearch";
-import { Globe, Rocket, History, Plus, ChevronRight } from "lucide-react";
+import { Rocket, Plus, ChevronRight, Sparkles } from "lucide-react";
+import { db } from "@/lib/db";
+import Link from "next/link";
 
 export default async function AdminDashboard() {
+  // Fetch top 5 most recently updated skills that are PUBLISHED
+  const recentSkills = await db.skill.findMany({
+    where: { status: "PUBLISHED" },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      category: {
+        select: { name: true }
+      }
+    },
+    orderBy: { updatedAt: "desc" },
+    take: 5
+  });
+
   return (
     <div className="dashboard-container">
         <h1 className="dashboard-title">Explore your skills!</h1>
         
         <DashboardSearch />
 
-        <div className="dashboard-grid">
+        <div className="dashboard-grid" style={{ gridTemplateColumns: '1fr' }}>
           {/* Column 1 */}
           <div className="dashboard-column">
             <div className="dashboard-column-header">
-              <span className="dashboard-column-header-title">My Skills <ChevronRight size={14}/></span>
+              <Link href="/admin/skills" className="dashboard-column-header-title transition-colors">
+                All Skills <ChevronRight size={14}/>
+              </Link>
               <button><Plus size={16} /></button>
             </div>
             <div className="dashboard-card-list">
-              <div className="dashboard-card">
-                <div className="dashboard-card-left">
-                  <Globe size={16} className="dashboard-card-icon" />
-                  <span>libraryskill.com</span>
+              {recentSkills.length > 0 ? (
+                recentSkills.map((skill) => (
+                  <Link href={`/admin/skills/${skill.slug}`} key={skill.id} className="dashboard-card group">
+                    <div className="dashboard-card-left flex items-center gap-3">
+                      <Sparkles size={16} className="dashboard-card-icon text-[var(--dash-text-muted)]" />
+                      <span className="text-[var(--dash-text)] font-medium">
+                        {skill.category?.name?.toLowerCase() || 'uncategorized'} <span className="text-[var(--dash-text-muted)] font-normal">— {skill.title}</span>
+                      </span>
+                    </div>
+                    <ChevronRight size={16} className="dashboard-card-arrow opacity-0 group-hover:opacity-100 transition-opacity text-[var(--dash-text-muted)]" />
+                  </Link>
+                ))
+              ) : (
+                <div className="p-4 text-center text-sm text-[var(--dash-text-muted)]">
+                  No published skills found.
                 </div>
-                <ChevronRight size={16} className="dashboard-card-arrow" />
-              </div>
-              <div className="dashboard-card">
-                <div className="dashboard-card-left">
-                  <Globe size={16} className="dashboard-card-icon" />
-                  <span>digitalprint.biz.id</span>
-                </div>
-                <ChevronRight size={16} className="dashboard-card-arrow" />
-              </div>
-              <div className="dashboard-card">
-                <div className="dashboard-card-left">
-                  <Globe size={16} className="dashboard-card-icon" />
-                  <span>cetakia.com</span>
-                </div>
-                <ChevronRight size={16} className="dashboard-card-arrow" />
-              </div>
+              )}
             </div>
-          </div>
-
-          {/* Column 2 */}
-          <div className="dashboard-column">
-            <div className="dashboard-column-header">
-              <span className="dashboard-column-header-title">Collections <ChevronRight size={14}/></span>
-              <button><Plus size={16} /></button>
-            </div>
-            <div className="dashboard-empty-card">
+            
+            <div className="dashboard-empty-card" style={{ marginTop: '1rem', width: '100%' }}>
               <Rocket size={16} />
-              <span>Ship something new</span>
-            </div>
-          </div>
-
-          {/* Column 3 */}
-          <div className="dashboard-column">
-            <div className="dashboard-column-header">
-              <span className="dashboard-column-header-title">Recents</span>
-            </div>
-            <div className="dashboard-card-list">
-              <div className="dashboard-card">
-                <div className="dashboard-card-left">
-                  <History size={16} className="dashboard-card-icon" />
-                  <span>Stream / <b>Plans</b></span>
-                </div>
-                <ChevronRight size={16} className="dashboard-card-arrow" />
-              </div>
-              <div className="dashboard-card">
-                <div className="dashboard-card-left">
-                  <History size={16} className="dashboard-card-icon" />
-                  <span>Email Service / <b>Email Routing</b></span>
-                </div>
-                <ChevronRight size={16} className="dashboard-card-arrow" />
-              </div>
-              <div className="dashboard-card">
-                <div className="dashboard-card-left">
-                  <History size={16} className="dashboard-card-icon" />
-                  <span>DNS / <b>Analytics</b></span>
-                </div>
-                <ChevronRight size={16} className="dashboard-card-arrow" />
-              </div>
-              <div className="dashboard-card">
-                <div className="dashboard-card-left">
-                  <History size={16} className="dashboard-card-icon" />
-                  <span>DNS / <b>Settings</b></span>
-                </div>
-                <ChevronRight size={16} className="dashboard-card-arrow" />
-              </div>
+              <span>Create something new</span>
             </div>
           </div>
         </div>

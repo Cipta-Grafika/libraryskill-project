@@ -20,12 +20,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${baseUrl}/${skill.category?.slug || "uncategorized"}/${skill.slug}`,
     lastModified: skill.publishedAt || skill.updatedAt,
     changeFrequency: 'weekly' as const,
-    priority: 0.8,
+    priority: 0.9,
   }));
 
   return [
     {
       url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 1,
+    },
+    {
+      url: `${baseUrl}/skills`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1,

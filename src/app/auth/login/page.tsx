@@ -42,6 +42,10 @@ export default function LoginPage() {
 
   return (
     <div className="auth-container relative">
+      <Link href="/" className="absolute top-4 left-4 z-50 flex items-center gap-2 hover:opacity-80 transition-opacity" style={{ textDecoration: 'none' }}>
+        <div className="header-logo-icon">L</div>
+        <span className="header-title">LibrarySkill</span>
+      </Link>
       <div className="absolute top-4 right-4 z-50">
         <ThemeToggle />
       </div>
