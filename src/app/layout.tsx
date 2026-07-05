@@ -31,8 +31,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://libraryskill.com"),
   title: "LibrarySkill",
-  description: "Prompt documentation hub",
+  description: "Skills and Prompts documentation hub",
 };
 
 export default async function RootLayout({
@@ -48,6 +49,11 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        <link rel="llms" href="/llms.txt" />
+        <link rel="sitemap" href="/sitemap.xml" />
+        <link rel="robots" href="/robots.txt" />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground font-sans transition-colors duration-300" suppressHydrationWarning>
         <AuthProvider session={session}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

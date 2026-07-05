@@ -1,18 +1,18 @@
 /* Light Theme Colors (Default) */
 :root {
   /* Main Accent (Image 1) */
-  --primary: #FFC067;
-  
+  --primary: #ffb54e;
+
   /* Primary Gradations (Image 3) */
   --primary-50: #FFF5EE;
   --primary-100: #FFEBDE;
-  --primary-200: #FFE1CD;
-  --primary-300: #FFD6BC;
-  --primary-400: #FFCCAB;
-  --primary-500: #FFC29A;
-  --primary-600: #FFB789;
-  --primary-700: #FFAC77;
-  --primary-800: #FFA164;
+  --primary-200: #ffaa72;
+  --primary-300: #fa8034;
+  --primary-400: #ff8c40;
+  --primary-500: #ff954e;
+  --primary-600: #fd9352;
+  --primary-700: #fe8236;
+  --primary-800: #fe8636;
   --primary-900: #FF964F;
 
   /* Indicators */
@@ -20,7 +20,8 @@
 }
 
 /* Dark Theme Colors */
-:root[class~="dark"], .dark {
+:root[class~="dark"],
+.dark {
   /* Main Accent (Image 2) */
   --primary: #FF964F;
 
@@ -28,10 +29,10 @@
   --primary-50: #FF964F;
   --primary-100: #DE8244;
   --primary-200: #BE6E38;
-  --primary-300: #9E5B2E;
-  --primary-400: #804923;
-  --primary-500: #633719;
-  --primary-600: #482610;
+  --primary-300: #FF964F;
+  --primary-400: #fa893d;
+  --primary-500: #f07a2b;
+  --primary-600: #ea6b16;
   --primary-700: #2E1607;
   --primary-800: #160802;
   --primary-900: #030100;

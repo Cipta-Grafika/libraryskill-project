@@ -6,6 +6,7 @@ import { BookOpen, User } from "lucide-react";
 import modelsData from "@/data/models.json";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { BackToTop } from "@/components/BackToTop";
 
 interface PreviewSkillPageProps {
   params: Promise<{
@@ -161,6 +162,7 @@ export default async function PreviewSkillPage({ params }: PreviewSkillPageProps
 
         </div>
       </main>
+      <BackToTop />
     </div>
   );
 }

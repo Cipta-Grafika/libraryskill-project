@@ -1,8 +1,17 @@
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { BackToTop } from "@/components/BackToTop";
 
 import Link from "next/link";
-import { ArrowRight, BookOpen, Search, ShieldCheck } from "lucide-react";
+import { ArrowRight, BookOpen, Search, ShieldCheck, Download } from "lucide-react";
 import "@/styles/landing.css";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default function Home() {
   return (
@@ -60,9 +69,18 @@ export default function Home() {
               <h3>Discover</h3>
               <p>Easily search, filter, and learn from a public catalog of skills. Share your knowledge with the world securely.</p>
             </div>
+            <div className="landing-feature-card">
+              <div className="landing-feature-icon-wrapper">
+                <Download size={24} />
+              </div>
+              <h3>Export &amp; Share</h3>
+              <p>Download any published skill as a structured Markdown file. Import it back seamlessly to iterate, remix, or migrate your knowledge anywhere.</p>
+            </div>
           </div>
         </div>
       </main>
+      <Footer />
+      <BackToTop />
     </div>
   );
 }
