@@ -39,6 +39,8 @@ export default function NewSkillPage() {
   const isNavigatingAway = useRef(true);
   const { showAlert } = useAlert();
 
+  // Note: markdown import is handled via drag & drop / upload on /studio dashboard.
+
   useEffect(() => {
     fetch("/api/categories")
       .then((res) => res.json())

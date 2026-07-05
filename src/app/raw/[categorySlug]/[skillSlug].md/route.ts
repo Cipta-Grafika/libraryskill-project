@@ -18,14 +18,26 @@ export async function GET(
         slug: resolvedParams.categorySlug
       }
     },
+    select: {
+      title: true,
+      description: true,
+      content: true,
+      status: true,
+    },
   });
 
   if (!skill || skill.status !== "PUBLISHED") {
     return new NextResponse("404 Not Found", { status: 404 });
   }
 
+  // Build the full markdown: title → description → content
+  const titleBlock = `# ${skill.title}`;
+  const descriptionBlock = skill.description ? `### ${skill.description}` : "";
+  const markdownParts = [titleBlock, descriptionBlock, skill.content].filter(Boolean);
+  const fullMarkdown = markdownParts.join("\n\n");
+
   // Return raw Markdown as text/plain, and force download
-  return new NextResponse(skill.content, {
+  return new NextResponse(fullMarkdown, {
     status: 200,
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
