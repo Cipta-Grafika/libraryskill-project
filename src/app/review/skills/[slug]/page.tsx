@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { formatDistanceToNow } from "date-fns";
 import { User, Clock } from "lucide-react";
 import Link from "next/link";
+import { BackToTop } from "@/components/BackToTop";
 
 import { PageBanner } from "@/components/PageBanner";
 
@@ -184,6 +185,7 @@ export default async function ReviewDetailPage({ params }: ReviewDetailPageProps
 
       </div>
     </div>
+    <BackToTop />
     </>
   );
 }
