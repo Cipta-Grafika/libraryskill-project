@@ -76,7 +76,7 @@ export default async function PublicSkillsPage() {
       <div className="w-full relative border-b border-[var(--search-border)] pt-12 pb-6 md:pt-16 md:pb-8 flex flex-col items-center">
         <div className="skills-hero-bg"></div>
         <h1 className="dashboard-title mb-8 mt-0 text-center relative z-10">Explore our skills!</h1>
-        <div className="w-full relative z-10" style={{ maxWidth: '56rem', padding: '0 1.5rem', marginBottom: '-3rem' }}>
+        <div className="w-full relative z-10" style={{ maxWidth: '59rem', padding: '0 1.5rem', marginBottom: '-3rem' }}>
           <DashboardSearch apiEndpoint="/api/public/skills" isPublicSearch={true} />
         </div>
       </div>

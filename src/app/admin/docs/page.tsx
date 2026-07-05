@@ -2,32 +2,29 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db as prisma } from "@/lib/db";
-import SkillsClient from "./SkillsClient";
+import DocsClient from "./DocsClient";
 
-export default async function StudioSkillsPage() {
+export default async function AdminDocsPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user) {
+  if (!session || !session.user || session.user.role !== "SUPERADMIN") {
     redirect("/auth/login");
   }
 
-  const skills = await prisma.skill.findMany({
-    where: {
-      authorId: session.user.id
-    },
+  const docs = await prisma.doc.findMany({
     orderBy: {
       createdAt: 'desc'
     },
     include: {
-      category: {
-        select: { name: true }
+      series: {
+        select: { title: true }
       }
     }
   });
 
   return (
     <div className="w-full">
-      <SkillsClient initialSkills={skills} />
+      <DocsClient initialDocs={docs} />
     </div>
   );
 }

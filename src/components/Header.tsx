@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { ThemeToggle } from "./ThemeToggle";
-import { User, ChevronRight, Users, Grid, BookOpen, ScrollText, PlusCircle, Inbox, PlusSquare, Menu, X, Settings, Compass } from "lucide-react";
+import { User, ChevronRight, Users, Grid, BookOpen, ScrollText, PlusCircle, Inbox, PlusSquare, Menu, X, Settings, Compass, Layers } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -78,8 +78,14 @@ export function Header() {
                       <Link href="/admin/categories" className={`mobile-nav-link ${pathname.includes('/admin/categories') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                         <Grid size={16} /> Categories
                       </Link>
+                      <Link href="/admin/series" className={`mobile-nav-link ${pathname.includes('/admin/series') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                        <Layers size={16} /> Series
+                      </Link>
                       <Link href="/admin/skills" className={`mobile-nav-link ${pathname.includes('/admin/skills') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                         <BookOpen size={16} /> Skills
+                      </Link>
+                      <Link href="/admin/docs" className={`mobile-nav-link ${pathname.includes('/admin/docs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                        <BookOpen size={16} /> Docs
                       </Link>
                       <Link href="/admin/audit-logs" className={`mobile-nav-link ${pathname.includes('/admin/audit-logs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                         <ScrollText size={16} /> Logs
@@ -136,8 +142,14 @@ export function Header() {
                   <Link href="/admin/categories" className={`header-nav-link ${pathname.includes('/admin/categories') ? 'active' : ''}`}>
                     <Grid size={16} /> Categories
                   </Link>
+                  <Link href="/admin/series" className={`header-nav-link ${pathname.includes('/admin/series') ? 'active' : ''}`}>
+                    <Layers size={16} /> Series
+                  </Link>
                   <Link href="/admin/skills" className={`header-nav-link ${pathname.includes('/admin/skills') ? 'active' : ''}`}>
                     <BookOpen size={16} /> Skills
+                  </Link>
+                  <Link href="/admin/docs" className={`header-nav-link ${pathname.includes('/admin/docs') ? 'active' : ''}`}>
+                    <BookOpen size={16} /> Docs
                   </Link>
                   <Link href="/admin/audit-logs" className={`header-nav-link ${pathname.includes('/admin/audit-logs') ? 'active' : ''}`}>
                     <ScrollText size={16} /> Logs
@@ -199,11 +211,7 @@ export function Header() {
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{session?.user?.email}</p>
                   </div>
                   <div className="dropdown-divider"></div>
-                  {role === "AUTHOR" && (
-                    <Link href="/studio/skills/new" className="dropdown-item">
-                      <span>Create Skill</span>
-                    </Link>
-                  )}
+
                   <button className="dropdown-item flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <User size={14} className="text-zinc-500" />
