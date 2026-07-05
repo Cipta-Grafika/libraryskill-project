@@ -6,6 +6,7 @@ import { MarkdownEditor } from "@/components/MarkdownEditor";
 import { useAlert } from "@/components/AlertProvider";
 
 import { Plus, Trash2, X } from "lucide-react";
+import { PageBanner } from "@/components/PageBanner";
 
 type Category = {
   id: string;
@@ -25,7 +26,7 @@ export default function EditSkillClient({ initialData }: { initialData: { id: st
   const [description, setDescription] = useState(initialData.description || "");
   const [tags, setTags] = useState<string[]>(initialData.tags || []);
   const [tagInput, setTagInput] = useState("");
-  
+
   const [blocks, setBlocks] = useState<ContentBlock[]>(initialData.blocks || []);
   const [categoryId, setCategoryId] = useState(initialData.categoryId || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,7 +43,7 @@ export default function EditSkillClient({ initialData }: { initialData: { id: st
 
   const handleSubmit = async (e: React.FormEvent, status: "DRAFT" | "IN_REVIEW" | "PUBLISHED" | "ARCHIVED" = "DRAFT") => {
     e.preventDefault();
-    
+
     const finalContent = blocks
       .filter((b) => b.title.trim() || b.content.trim())
       .map((b) => `# ${b.title}\n\n${b.content}`)
@@ -83,30 +84,29 @@ export default function EditSkillClient({ initialData }: { initialData: { id: st
   };
 
   return (
-    <div className="studio-container w-full">
-      <div className="studio-header">
-        <h1 className="studio-title">Edit Skill</h1>
-        <div className="studio-actions">
+    <div className="w-full">
+      <PageBanner title="Edit Skill" backHref="/studio/skills" backText="Back">
+        <button
+          type="button"
+          onClick={(e) => handleSubmit(e, initialData.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT")}
+          disabled={isSubmitting}
+          className="skills-btn skills-btn-outline skills-btn-sm"
+        >
+          {initialData.status === "PUBLISHED" ? "Save Changes" : "Save Draft"}
+        </button>
+        {initialData.status !== "PUBLISHED" && (
           <button
             type="button"
-            onClick={(e) => handleSubmit(e, initialData.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT")}
+            onClick={(e) => handleSubmit(e, "IN_REVIEW")}
             disabled={isSubmitting}
-            className="studio-btn studio-btn-secondary"
+            className="skills-btn skills-btn-primary skills-btn-sm"
           >
-            {initialData.status === "PUBLISHED" ? "Save Changes" : "Save Draft"}
+            Submit for Review
           </button>
-          {initialData.status !== "PUBLISHED" && (
-            <button
-              type="button"
-              onClick={(e) => handleSubmit(e, "IN_REVIEW")}
-              disabled={isSubmitting}
-              className="studio-btn studio-btn-primary"
-            >
-              Submit for Review
-            </button>
-          )}
-        </div>
-      </div>
+        )}
+      </PageBanner>
+
+      <div className="skills-page w-full">
 
       <div className="space-y-6">
         <div className="studio-form-section">
@@ -152,7 +152,7 @@ export default function EditSkillClient({ initialData }: { initialData: { id: st
           </div>
           <div className="studio-form-group">
             <label className="studio-label">Tags</label>
-            <div 
+            <div
               className="studio-input studio-tags-input-wrapper"
               onClick={() => document.getElementById("tag-input-new")?.focus()}
             >
@@ -240,7 +240,7 @@ export default function EditSkillClient({ initialData }: { initialData: { id: st
                   <Trash2 size={18} />
                 </button>
               </div>
-              
+
               <MarkdownEditor
                 value={block.content}
                 onChange={(val) => {
@@ -263,6 +263,7 @@ export default function EditSkillClient({ initialData }: { initialData: { id: st
           >
             <Plus size={18} /> Add New Block
           </button>
+        </div>
         </div>
       </div>
     </div>

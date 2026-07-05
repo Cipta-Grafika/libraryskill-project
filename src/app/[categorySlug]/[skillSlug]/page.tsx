@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { BackToTop } from "@/components/BackToTop";
 import { PageBanner } from "@/components/PageBanner";
 import Link from "next/link";
 import { BookOpen, User } from "lucide-react";
@@ -60,6 +61,9 @@ export async function generateMetadata(
       card: "summary_large_image",
       title: skill.title,
       description: skill.description || "",
+    },
+    alternates: {
+      canonical: `/${resolvedParams.categorySlug}/${resolvedParams.skillSlug}`,
     },
   };
 }
@@ -205,6 +209,7 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
         </div>
       </main>
       <Footer />
+      <BackToTop />
     </div>
   );
 }

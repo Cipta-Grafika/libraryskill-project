@@ -12,6 +12,9 @@ export function Footer() {
         <div className="footer-links">
           <Link href="/" className="footer-link">Home</Link>
           <Link href="/skills" className="footer-link">Skills</Link>
+          <Link href="/docs" className="footer-link">Docs</Link>
+          <Link href="/sitemap.xml" className="footer-link">Sitemap</Link>
+          <Link href="/llms.txt" className="sr-only">LLM</Link>
           <Link href="/auth/login" className="footer-link">Login</Link>
         </div>
       </div>
