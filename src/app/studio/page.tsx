@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { PlusCircle, BookOpen, Clock, CheckCircle, Edit3, Rocket } from "lucide-react";
+import { BookOpen, Clock, CheckCircle, Edit3, Rocket } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -36,29 +36,111 @@ export default function AuthorDashboardPage() {
     published: skills.filter(s => s.status === "PUBLISHED").length,
   };
 
+  // ── Shared markdown parser ─────────────────────────────────────────────────
+  // Identical mapping rules as the Import .md button on /studio/skills/new:
+  //   First `# …`   → title field
+  //   First `### …` immediately after → description field
+  //   Every subsequent `# …` → one content block (title = heading, body = content)
   const processFile = (file: File) => {
     if (!file.name.toLowerCase().endsWith('.md')) {
       alert("Please upload a Markdown (.md) file.");
       return;
     }
+
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const content = e.target?.result as string;
-      const title = file.name.replace(/\.md$/i, '');
+    reader.onload = (evt) => {
+      const raw = evt.target?.result as string;
+      if (!raw) return;
+
+      let importedTitle = "";
+      let importedDescription = "";
+
+      // Normalise CRLF → LF, then split into individual lines
+      const lines = raw.replace(/\r\n/g, "\n").split("\n");
+      let cursor = 0;
+
+      // Step 1 – Strip optional YAML frontmatter (--- … ---)
+      if (lines[cursor]?.trim() === "---") {
+        cursor++;
+        const yamlLines: string[] = [];
+        while (cursor < lines.length && lines[cursor]?.trim() !== "---") {
+          yamlLines.push(lines[cursor++]);
+        }
+        cursor++; // skip closing ---
+        const yaml = yamlLines.join("\n");
+        const tm = yaml.match(/^title:\s*"?([^"\n]+)"?\s*$/m);
+        const dm = yaml.match(/^description:\s*"?([^"\n]+)"?\s*$/m);
+        if (tm) importedTitle       = tm[1].trim();
+        if (dm) importedDescription = dm[1].trim();
+      }
+
+      // Skip leading blank lines
+      while (cursor < lines.length && lines[cursor].trim() === "") cursor++;
+
+      // Step 2 – First `# …` line → title (unless frontmatter already set it)
+      if (!importedTitle && /^# /.test(lines[cursor] ?? "")) {
+        importedTitle = lines[cursor].replace(/^# /, "").trim();
+        cursor++;
+      }
+
+      // Skip blank lines between title and description
+      while (cursor < lines.length && lines[cursor].trim() === "") cursor++;
+
+      // Step 3 – First `### …` line → description (unless frontmatter already set it)
+      if (!importedDescription && /^### /.test(lines[cursor] ?? "")) {
+        importedDescription = lines[cursor].replace(/^### /, "").trim();
+        cursor++;
+      }
+
+      // Skip blank lines before first content block
+      while (cursor < lines.length && lines[cursor].trim() === "") cursor++;
+
+      // Step 4 – Remaining lines → split into blocks on every `# ` (exactly one `#`)
+      const parsedBlocks: { id: string; title: string; content: string }[] = [];
+      let currentTitle = "";
+      let currentLines: string[] = [];
+
+      const flushBlock = () => {
+        if (!currentTitle && currentLines.length === 0) return;
+        while (currentLines.length > 0 && currentLines[currentLines.length - 1].trim() === "") {
+          currentLines.pop();
+        }
+        parsedBlocks.push({
+          id: `${Date.now()}-${parsedBlocks.length}`,
+          title: currentTitle || "Content",
+          content: currentLines.join("\n"),
+        });
+        currentTitle = "";
+        currentLines = [];
+      };
+
+      for (; cursor < lines.length; cursor++) {
+        const line = lines[cursor];
+        if (/^# /.test(line)) {
+          flushBlock();
+          currentTitle = line.replace(/^# /, "").trim();
+        } else {
+          currentLines.push(line);
+        }
+      }
+      flushBlock(); // flush the last block
+
+      // Step 5 – Persist to sessionStorage so /studio/skills/new can hydrate
       const draft = {
-        title,
-        description: "",
-        categoryId: "",
-        tags: [],
-        blocks: [
-          { id: Date.now().toString(), title: "Markdown Content", content }
-        ]
+        title:       importedTitle  || file.name.replace(/\.md$/i, ""),
+        description: importedDescription,
+        categoryId:  "",
+        tags:        [] as string[],
+        blocks:      parsedBlocks.length > 0
+          ? parsedBlocks
+          : [{ id: Date.now().toString(), title: "Content", content: raw }],
       };
       sessionStorage.setItem("new_skill_draft", JSON.stringify(draft));
       router.push("/studio/skills/new");
     };
     reader.readAsText(file);
   };
+
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -141,8 +223,8 @@ export default function AuthorDashboardPage() {
                 }
               }}
             />
-            <Rocket size={16} className={isDragging ? "text-orange-500" : ""} />
-            <div className="flex items-center gap-1.5 flex-wrap justify-center">
+            <Rocket size={16} className={`transition-opacity ${isDragging ? "invisible" : ""}`} />
+            <div className={`flex items-center gap-1.5 flex-wrap justify-center transition-opacity ${isDragging ? "invisible" : ""}`}>
               <Link href="/studio/skills/new" className="hover:text-orange-500 dark:hover:text-orange-400 transition-colors font-medium">
                 Create something new
               </Link>
