@@ -203,7 +203,7 @@
 .landing-features-wrapper {
   background-color: var(--studio-surface-hover);
   border-top: 1px solid var(--studio-border);
-  padding: 5rem 1.5rem;
+  padding: 3rem 1.5rem;
   width: 100%;
 }
 
@@ -213,20 +213,27 @@
   margin-right: auto;
   display: grid;
   grid-template-columns: repeat(1, 1fr);
-  gap: 2rem;
+  gap: 1rem;
 }
 
 @media (min-width: 768px) {
   .landing-features {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 3rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .landing-features {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
   }
 }
 
 .landing-feature-card {
   background-color: var(--studio-surface);
   border: 1px solid var(--studio-border);
-  padding: 2.5rem 2rem;
+  padding: 1.5rem 1.25rem;
   border-radius: 1rem;
   transition: all 0.3s ease;
   text-align: left;

@@ -71,7 +71,7 @@ export async function PUT(req: Request) {
     }
 
     // Build update data
-    const updateData: any = {
+    const updateData: { name: string; bio: string | null; slug: string; password?: string } = {
       name,
       bio,
       slug,
