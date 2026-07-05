@@ -62,6 +62,9 @@ export async function generateMetadata(
       title: skill.title,
       description: skill.description || "",
     },
+    alternates: {
+      canonical: `/${resolvedParams.categorySlug}/${resolvedParams.skillSlug}`,
+    },
   };
 }
 
