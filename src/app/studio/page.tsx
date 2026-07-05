@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { PlusCircle, BookOpen, Clock, CheckCircle, Edit3, Rocket } from "lucide-react";
+import { BookOpen, Clock, CheckCircle, Edit3, Rocket } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 

@@ -19,7 +19,6 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [slug, setSlug] = useState("");
-  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
   const [bio, setBio] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -31,15 +30,19 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
     setName(newName);
     setSlug(newName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''));
   };
-
-  useEffect(() => {
+  const [prevIsOpen, setPrevIsOpen] = useState(false);
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) {
       setFetching(true);
       setError("");
       setPassword("");
       setConfirmPassword("");
-      setIsSlugManuallyEdited(false);
-      
+    }
+  }
+
+  useEffect(() => {
+    if (isOpen) {
       // Fetch current profile data
       fetch("/api/profile")
         .then(res => res.json())
