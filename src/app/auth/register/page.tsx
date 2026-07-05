@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
-import { Eye, EyeOff, UserPlus, Info } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function RegisterPage() {

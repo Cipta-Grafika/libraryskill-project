@@ -102,10 +102,10 @@ export default async function PublicDocPage({ params }: PublicDocPageProps) {
     <div className="flex flex-col min-h-screen">
       <Header />
       <PageBanner backHref="/docs" backText="Back to Docs" />
-      
+
       <main className="public-skill-container flex-grow mt-4 md:mt-8">
         <div className="public-skill-layout">
-          
+
           {/* Main Content (Left) */}
           <div className="public-skill-main">
             <div className="public-skill-card">
@@ -113,7 +113,7 @@ export default async function PublicDocPage({ params }: PublicDocPageProps) {
                 <BookOpen size={16} className="text-zinc-500" />
                 <span>{doc.slug}.md</span>
               </div>
-              
+
               <div className="public-skill-card-body" style={{ borderBottom: '1px solid var(--studio-border)' }}>
                 <h1 className="public-skill-title">{doc.title}</h1>
                 {doc.description && (
@@ -122,7 +122,7 @@ export default async function PublicDocPage({ params }: PublicDocPageProps) {
                   </p>
                 )}
               </div>
-                
+
               <div className="public-skill-card-body pt-8">
                 <div className="review-prose">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -135,7 +135,7 @@ export default async function PublicDocPage({ params }: PublicDocPageProps) {
 
           {/* Sidebar (Right) */}
           <aside className="public-skill-sidebar">
-            
+
             <div className="public-sidebar-card">
               {/* Author Section */}
               <div className="public-sidebar-card-header">Author</div>
@@ -163,11 +163,11 @@ export default async function PublicDocPage({ params }: PublicDocPageProps) {
                         const order = seriesDoc.seriesOrder ?? (index + 1);
                         const isCurrent = seriesDoc.slug === doc.slug;
                         const href = `/docs/${doc.seriesSlug}/${order}/${seriesDoc.slug}`;
-                        
+
                         return (
                           <li key={seriesDoc.slug} className="flex items-start gap-2 text-sm">
                             <span className="font-mono text-zinc-400 min-w-[2ch]">{order}.</span>
-                            <Link 
+                            <Link
                               href={href}
                               className={`hover:underline flex-grow ${isCurrent ? 'text-primary-600 font-semibold' : 'text-zinc-600 dark:text-zinc-400'}`}
                             >

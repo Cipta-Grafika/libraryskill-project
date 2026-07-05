@@ -76,7 +76,7 @@ export const authOptions: NextAuthOptions = {
         
         // Mutate the user object so the jwt callback can use dbUser's id, role, and name
         user.id = dbUser.id;
-        (user as any).role = dbUser.role;
+        (user as import("next-auth").User & { role?: UserRole }).role = dbUser.role;
         user.name = dbUser.name;
         return true;
       }
@@ -85,7 +85,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role as UserRole;
+        token.role = (user as import("next-auth").User & { role?: UserRole }).role as UserRole;
       }
       
       if (trigger === "update" && session?.name) {
