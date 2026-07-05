@@ -32,6 +32,7 @@ model User {
   slug String  @unique
 
   skills Skill[]
+  docs   Doc[]    @relation("UserDocs")
   reviews Review[] @relation("ReviewerReviews")
 
   createdAt DateTime @default(now())
@@ -97,4 +98,43 @@ model Review {
   @@index([skillId])
   @@index([reviewerId])
   @@map("reviews")
+}
+
+model Series {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String?  @db.Text
+
+  docs        Doc[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("series")
+}
+
+model Doc {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique
+  
+  seriesSlug  String?
+  series      Series?     @relation(fields: [seriesSlug], references: [slug], onDelete: SetNull)
+  seriesOrder Int?
+
+  description String?     @db.Text
+  content     String      @db.Text
+  status      SkillStatus @default(DRAFT)
+
+  authorId    String
+  author      User        @relation("UserDocs", fields: [authorId], references: [id], onDelete: Cascade)
+
+  publishedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([seriesSlug])
+  @@index([authorId])
+  @@map("docs")
 }

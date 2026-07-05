@@ -193,3 +193,13 @@
 .auth-select {
   appearance: none;
 }
+
+/* Mobile Adjustments */
+@media (max-width: 640px) {
+  .auth-card {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+  }
+}
+

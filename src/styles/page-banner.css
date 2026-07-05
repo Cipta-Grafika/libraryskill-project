@@ -14,8 +14,14 @@
   height: 3rem; /* Slightly smaller than main header (h-12) */
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
   max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .page-banner-container {
+    padding: 0 1.5rem;
+  }
 }
 
 .page-banner-back {

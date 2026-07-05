@@ -26,7 +26,7 @@ export default async function StudioSkillsPage() {
   });
 
   return (
-    <div className="skills-page w-full">
+    <div className="w-full">
       <SkillsClient initialSkills={skills} />
     </div>
   );

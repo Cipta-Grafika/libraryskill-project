@@ -50,13 +50,13 @@
 
 @media (min-width: 768px) {
   .skills-page {
-    padding: 1.5rem 2rem;
+    padding: 1.5rem 1.5rem;
   }
 }
 
 @media (min-width: 1024px) {
   .skills-page {
-    padding: 2rem 3rem;
+    padding: 2rem 1.5rem;
   }
 }
 
@@ -125,12 +125,23 @@
   transition: all 0.2s;
 }
 
+.skills-btn-sm {
+  height: 2rem !important;
+  padding: 0 0.75rem !important;
+  font-size: 0.75rem !important;
+}
+
 @media (min-width: 768px) {
   .skills-btn {
     gap: 0.5rem;
     height: 2.5rem;
     padding: 0 1rem;
     font-size: 0.875rem;
+  }
+  .skills-btn-sm {
+    height: 2.125rem !important;
+    padding: 0 0.875rem !important;
+    font-size: 0.8125rem !important;
   }
 }
 .skills-btn-outline {

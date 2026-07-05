@@ -31,8 +31,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://libraryskill.com"),
   title: "LibrarySkill",
-  description: "Prompt documentation hub",
+  description: "Skills and Prompts documentation hub",
 };
 
 export default async function RootLayout({

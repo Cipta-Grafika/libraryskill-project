@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Search, Filter, Plus, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, AlertCircle, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { PageBanner } from "@/components/PageBanner";
 
 type Skill = {
   id: string;
@@ -127,18 +128,16 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
 
   return (
     <>
-      <div className="skills-controls">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--table-text)' }}>My Skills</h1>
-        <div className="skills-actions-group">
-          <button className="skills-btn skills-btn-outline"><Filter size={14}/> Filters</button>
-          <Link href="/studio/skills/new" className="skills-btn skills-btn-primary">
-            <Plus size={14}/> New Draft
-          </Link>
-        </div>
-      </div>
+      <PageBanner title="My Skills">
+        <button className="skills-btn skills-btn-outline skills-btn-sm"><Filter size={14}/> Filters</button>
+        <Link href="/studio/skills/new" className="skills-btn skills-btn-primary skills-btn-sm">
+          <Plus size={14}/> New Draft
+        </Link>
+      </PageBanner>
 
-      <div className="skills-table-container">
-        <div className="skills-table-top">
+      <div className="skills-page w-full">
+        <div className="skills-table-container">
+          <div className="skills-table-top">
           <div className="skills-search-container" style={{ margin: 0, height: '2.25rem', flex: 1, maxWidth: '100%', marginRight: '1rem' }}>
             <Search size={14} className="skills-search-icon" />
             <input 
@@ -266,6 +265,7 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
             </button>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Delete Confirmation Modal */}

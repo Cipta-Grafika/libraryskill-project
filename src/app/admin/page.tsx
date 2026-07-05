@@ -21,7 +21,7 @@ export default async function AdminDashboard() {
 
   return (
     <div className="dashboard-container">
-        <h1 className="dashboard-title">Explore your skills!</h1>
+        <h1 className="dashboard-title mb-8">Explore your skills!</h1>
         
         <DashboardSearch />
 

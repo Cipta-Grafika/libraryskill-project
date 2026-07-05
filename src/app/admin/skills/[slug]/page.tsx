@@ -6,6 +6,7 @@ import { formatDistanceToNow } from "date-fns";
 import { User, Clock } from "lucide-react";
 import Link from "next/link";
 import { PageBanner } from "@/components/PageBanner";
+import { BackToTop } from "@/components/BackToTop";
 
 interface AdminSkillDetailPageProps {
   params: {
@@ -177,6 +178,7 @@ export default async function AdminSkillDetailPage({ params }: AdminSkillDetailP
           
         </div>
       </div>
+      <BackToTop />
     </>
   );
 }
