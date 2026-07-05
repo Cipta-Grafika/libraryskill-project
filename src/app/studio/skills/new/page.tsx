@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
 import { useAlert } from "@/components/AlertProvider";
+import { PageBanner } from "@/components/PageBanner";
 
 import { Plus, Trash2, X } from "lucide-react";
 
@@ -25,7 +26,7 @@ export default function NewSkillPage() {
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  
+
   const [blocks, setBlocks] = useState<ContentBlock[]>([
     { id: "1", title: "Peran (Role)", content: "" },
     { id: "2", title: "Batasan (Scope)", content: "" },
@@ -86,7 +87,7 @@ export default function NewSkillPage() {
 
   const handleSubmit = async (e: React.FormEvent, status: "DRAFT" | "IN_REVIEW" | "PUBLISHED" = "DRAFT") => {
     e.preventDefault();
-    
+
     const finalContent = blocks
       .filter((b) => b.title.trim() || b.content.trim())
       .map((b) => `# ${b.title}\n\n${b.content}`)
@@ -129,28 +130,27 @@ export default function NewSkillPage() {
   };
 
   return (
-    <div className="studio-container w-full">
-      <div className="studio-header">
-        <h1 className="studio-title">Create New Skill</h1>
-        <div className="studio-actions">
-          <button
-            type="button"
-            onClick={(e) => handleSubmit(e, "DRAFT")}
-            disabled={isSubmitting}
-            className="studio-btn studio-btn-secondary"
-          >
-            Save Draft
-          </button>
-          <button
-            type="button"
-            onClick={(e) => handleSubmit(e, "IN_REVIEW")}
-            disabled={isSubmitting}
-            className="studio-btn studio-btn-primary"
-          >
-            Submit for Review
-          </button>
-        </div>
-      </div>
+    <div className="w-full">
+      <PageBanner title="Create New Skill" backHref="/studio/skills" backText="Back">
+        <button
+          type="button"
+          onClick={(e) => handleSubmit(e, "DRAFT")}
+          disabled={isSubmitting}
+          className="skills-btn skills-btn-outline skills-btn-sm"
+        >
+          Save Draft
+        </button>
+        <button
+          type="button"
+          onClick={(e) => handleSubmit(e, "IN_REVIEW")}
+          disabled={isSubmitting}
+          className="skills-btn skills-btn-primary skills-btn-sm"
+        >
+          Submit for Review
+        </button>
+      </PageBanner>
+
+      <div className="skills-page w-full">
 
       <div className="space-y-6">
         <div className="studio-form-section">
@@ -196,7 +196,7 @@ export default function NewSkillPage() {
           </div>
           <div className="studio-form-group">
             <label className="studio-label">Tags</label>
-            <div 
+            <div
               className="studio-input studio-tags-input-wrapper"
               onClick={() => document.getElementById("tag-input-new")?.focus()}
             >
@@ -284,7 +284,7 @@ export default function NewSkillPage() {
                   <Trash2 size={18} />
                 </button>
               </div>
-              
+
               <MarkdownEditor
                 value={block.content}
                 onChange={(val) => {
@@ -307,6 +307,7 @@ export default function NewSkillPage() {
           >
             <Plus size={18} /> Add New Block
           </button>
+        </div>
         </div>
       </div>
     </div>
