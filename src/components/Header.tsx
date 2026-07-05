@@ -5,6 +5,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { User, ChevronRight, Users, Grid, BookOpen, ScrollText, PlusCircle, Inbox, PlusSquare, Menu, X, Settings, Compass, Layers } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { EditProfileModal } from "./EditProfileModal";
 
@@ -42,7 +43,15 @@ export function Header() {
       <div className="header-container">
         <div className="flex items-center gap-4">
           <Link href={homeHref} className="header-logo-section hover:opacity-80 transition-opacity">
-            <div className="header-logo-icon">L</div>
+            <div className="header-logo-icon bg-transparent border-0 shadow-none text-transparent">
+              <Image 
+                src="/libraryskill.svg" 
+                alt="LibrarySkill Logo" 
+                width={32} 
+                height={32} 
+                className="mix-blend-multiply dark:mix-blend-screen dark:invert dark:hue-rotate-180 dark:brightness-110 transition-all object-contain scale-[1.35]"
+              />
+            </div>
             <span className="header-title">LibrarySkill</span>
             {role && (
               <span className="header-role-badge">

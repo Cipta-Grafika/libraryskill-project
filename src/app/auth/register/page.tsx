@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
-
-import { Eye, EyeOff } from "lucide-react";
+import { signIn } from "next-auth/react";
+import Image from "next/image";
+import { Eye, EyeOff, UserPlus, Info } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function RegisterPage() {
@@ -60,8 +60,16 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-container relative">
-      <Link href="/" className="absolute top-4 left-4 z-50 flex items-center gap-2 hover:opacity-80 transition-opacity" style={{ textDecoration: 'none' }}>
-        <div className="header-logo-icon">L</div>
+      <Link href="/" className="absolute top-4 left-4 z-50 flex items-center gap-2 hover:opacity-80 transition-opacity mix-blend-multiply dark:mix-blend-screen" style={{ textDecoration: 'none' }}>
+        <div className="header-logo-icon bg-transparent border-0 shadow-none text-transparent">
+          <Image 
+            src="/libraryskill.svg" 
+            alt="LibrarySkill Logo" 
+            width={32} 
+            height={32} 
+            className="dark:invert dark:hue-rotate-180 dark:brightness-110 transition-all object-contain scale-[1.35]"
+          />
+        </div>
         <span className="header-title">LibrarySkill</span>
       </Link>
       <div className="absolute top-4 right-4 z-50">
