@@ -12,6 +12,8 @@ type Doc = {
   status: string;
   createdAt: Date;
   slug: string;
+  seriesSlug?: string | null;
+  seriesOrder?: number | null;
   series?: { title: string } | null;
 };
 
@@ -228,7 +230,7 @@ export default function DocsClient({ initialDocs }: { initialDocs: Doc[] }) {
                     <td className="skills-td" style={{ textOverflow: 'clip' }}>{new Date(s.createdAt).toLocaleDateString()}</td>
                     <td className="skills-td text-right">
                       <div className="flex justify-end gap-3">
-                        <Link href={`/admin/docs/view/${s.slug}`} target="_blank" className="skills-table-action-btn">
+                        <Link href={s.seriesSlug && s.seriesOrder ? `/admin/docs/view/${s.seriesSlug}/${s.seriesOrder}/${s.slug}` : `/admin/docs/view/${s.slug}`} target="_blank" className="skills-table-action-btn">
                           View
                         </Link>
                         <Link href={`/admin/docs/edit/${s.slug}`} className="skills-table-action-btn">

@@ -15,7 +15,14 @@ export default async function AdminDocsPage() {
     orderBy: {
       createdAt: 'desc'
     },
-    include: {
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      createdAt: true,
+      slug: true,
+      seriesSlug: true,
+      seriesOrder: true,
       series: {
         select: { title: true }
       }
