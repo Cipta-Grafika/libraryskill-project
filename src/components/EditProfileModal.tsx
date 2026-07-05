@@ -15,14 +15,14 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
   const { showAlert } = useAlert();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
-  
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [slug, setSlug] = useState("");
   const [bio, setBio] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  
+
   const [error, setError] = useState("");
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,12 +91,12 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
       if (!res.ok) {
         setError(data.error || "Failed to update profile");
       } else {
-        await update({ name }); 
+        await update({ name });
         onClose();
-        showAlert({ 
-          type: "success", 
-          title: "Success", 
-          message: "Profile updated successfully" 
+        showAlert({
+          type: "success",
+          title: "Success",
+          message: "Profile updated successfully"
         });
       }
     } catch (err) {
@@ -112,7 +112,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
       <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
         <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-zinc-900/50">
           <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Edit Profile</h2>
-          <button 
+          <button
             onClick={onClose}
             className="text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors rounded-md p-1"
             aria-label="Close modal"
