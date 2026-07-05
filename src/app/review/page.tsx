@@ -31,7 +31,7 @@ export default async function ReviewDashboard() {
   return (
     <>
       <div className="dashboard-container">
-        <h1 className="dashboard-title">Explore skills to review!</h1>
+        <h1 className="dashboard-title mb-8">Explore skills to review!</h1>
         
         <DashboardSearch basePath="/review/skills" apiEndpoint="/api/search/skills?status=IN_REVIEW" />
 
