@@ -1,11 +1,16 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { db } from "./db";
 import { UserRole } from "@prisma/client";
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "missing-google-client-id",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "missing-google-client-secret",
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -44,17 +49,54 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        if (!user.email) return false;
+        
+        let dbUser = await db.user.findUnique({ where: { email: user.email } });
+        
+        if (!dbUser) {
+           const baseSlug = (user.name || "user").toLowerCase().replace(/[^a-z0-9]+/g, '-');
+           let slug = baseSlug;
+           let counter = 1;
+           while (await db.user.findUnique({ where: { slug } })) {
+             slug = `${baseSlug}-${counter}`;
+             counter++;
+           }
+           
+           dbUser = await db.user.create({
+             data: {
+               name: user.name || "Google User",
+               email: user.email,
+               role: "AUTHOR",
+               slug,
+             }
+           });
+        }
+        
+        // Mutate the user object so the jwt callback can use dbUser's id, role, and name
+        user.id = dbUser.id;
+        (user as any).role = dbUser.role;
+        user.name = dbUser.name;
+        return true;
+      }
+      return true;
+    },
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role as UserRole;
+        token.role = (user as any).role as UserRole;
+      }
+      
+      if (trigger === "update" && session?.name) {
+        token.name = session.name;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
       }
       return session;
     }

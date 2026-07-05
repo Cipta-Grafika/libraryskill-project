@@ -73,7 +73,7 @@ export default function AuthorDashboardPage() {
       <div className="studio-header">
         <div>
           <h1 className="studio-title">
-            Welcome back, {session?.user?.name || 'Author'}!
+            Welcome back, <span className="text-[var(--primary)]">{session?.user?.name || 'Author'}</span>
           </h1>
           <p className="studio-subtitle">
             Here&apos;s an overview of your prompt documentation studio.

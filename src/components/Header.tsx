@@ -6,11 +6,13 @@ import { User, ChevronRight, Users, Grid, BookOpen, ScrollText, PlusCircle, Inbo
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { EditProfileModal } from "./EditProfileModal";
 
 export function Header() {
   const { data: session } = useSession();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -212,7 +214,13 @@ export function Header() {
                   </div>
                   <div className="dropdown-divider"></div>
 
-                  <button className="dropdown-item flex items-center justify-between">
+                  <button 
+                    onClick={() => {
+                      setIsProfileModalOpen(true);
+                      setDropdownOpen(false);
+                    }}
+                    className="dropdown-item flex items-center justify-between"
+                  >
                     <div className="flex items-center gap-2">
                       <User size={14} className="text-zinc-500" />
                       <span>Profile</span>
@@ -248,6 +256,10 @@ export function Header() {
           )}
         </div>
       </div>
+      <EditProfileModal 
+        isOpen={isProfileModalOpen} 
+        onClose={() => setIsProfileModalOpen(false)} 
+      />
     </header>
   );
 }
