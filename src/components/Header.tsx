@@ -32,7 +32,7 @@ export function Header() {
   }, []);
 
   const role = session?.user?.role;
-  
+
   let homeHref = "/";
   if (role === "SUPERADMIN") homeHref = "/admin";
   else if (role === "REVIEWER") homeHref = "/review";
@@ -44,11 +44,11 @@ export function Header() {
         <div className="flex items-center gap-4">
           <Link href={homeHref} className="header-logo-section hover:opacity-80 transition-opacity">
             <div className="header-logo-icon bg-transparent border-0 shadow-none text-transparent">
-              <Image 
-                src="/libraryskill.svg" 
-                alt="LibrarySkill Logo" 
-                width={32} 
-                height={32} 
+              <Image
+                src="/libraryskill.svg"
+                alt="LibrarySkill Logo"
+                width={32}
+                height={32}
                 className="mix-blend-multiply dark:mix-blend-screen dark:invert dark:hue-rotate-180 dark:brightness-110 transition-all object-contain scale-[1.35]"
               />
             </div>
@@ -61,14 +61,14 @@ export function Header() {
           </Link>
 
           <div className="mobile-menu-container" ref={mobileMenuRef}>
-            <button 
-              className="mobile-menu-btn" 
+            <button
+              className="mobile-menu-btn"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
-            
+
             {mobileMenuOpen && (
               <nav className="mobile-menu-dropdown">
                 {!role && (
@@ -82,56 +82,56 @@ export function Header() {
                   </>
                 )}
                 {role === "SUPERADMIN" && (
-                    <>
-                      <Link href="/admin/users" className={`mobile-nav-link ${pathname.includes('/admin/users') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                        <Users size={16} /> Users
-                      </Link>
-                      <Link href="/admin/categories" className={`mobile-nav-link ${pathname.includes('/admin/categories') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                        <Grid size={16} /> Categories
-                      </Link>
-                      <Link href="/admin/series" className={`mobile-nav-link ${pathname.includes('/admin/series') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                        <Layers size={16} /> Series
-                      </Link>
-                      <Link href="/admin/skills" className={`mobile-nav-link ${pathname.includes('/admin/skills') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                        <BookOpen size={16} /> Skills
-                      </Link>
-                      <Link href="/admin/docs" className={`mobile-nav-link ${pathname.includes('/admin/docs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                        <BookOpen size={16} /> Docs
-                      </Link>
-                      <Link href="/admin/audit-logs" className={`mobile-nav-link ${pathname.includes('/admin/audit-logs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                        <ScrollText size={16} /> Logs
-                      </Link>
-                    </>
-                  )}
-                  {role === "REVIEWER" && (
-                    <>
-                      <Link href="/review/queue" className={`mobile-nav-link ${pathname.includes('/review/queue') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                        <Inbox size={16} /> Queue
-                      </Link>
-                      <Link href="/review/skills" className={`mobile-nav-link ${pathname.includes('/review/skills') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                        <BookOpen size={16} /> Review Skills
-                      </Link>
-                      <Link href="/skills" className={`mobile-nav-link ${pathname === '/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                        <Compass size={16} /> All Skills
-                      </Link>
-                    </>
-                  )}
-                  {role === "AUTHOR" && (
-                    <>
-                      <Link href="/studio/skills/new" className={`mobile-nav-link ${pathname.includes('/studio/skills/new') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                        <PlusCircle size={16} /> New Skill
-                      </Link>
-                      <Link href="/studio/skills" className={`mobile-nav-link ${pathname === '/studio/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                        <BookOpen size={16} /> My Skills
-                      </Link>
-                      <Link href="/skills" className={`mobile-nav-link ${pathname === '/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
-                        <Compass size={16} /> All Skills
-                      </Link>
-                    </>
-                  )}
-                </nav>
-              )}
-            </div>
+                  <>
+                    <Link href="/admin/users" className={`mobile-nav-link ${pathname.includes('/admin/users') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Users size={16} /> Users
+                    </Link>
+                    <Link href="/admin/categories" className={`mobile-nav-link ${pathname.includes('/admin/categories') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Grid size={16} /> Categories
+                    </Link>
+                    <Link href="/admin/series" className={`mobile-nav-link ${pathname.includes('/admin/series') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Layers size={16} /> Series
+                    </Link>
+                    <Link href="/admin/skills" className={`mobile-nav-link ${pathname.includes('/admin/skills') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <BookOpen size={16} /> Skills
+                    </Link>
+                    <Link href="/admin/docs" className={`mobile-nav-link ${pathname.includes('/admin/docs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <BookOpen size={16} /> Docs
+                    </Link>
+                    <Link href="/admin/audit-logs" className={`mobile-nav-link ${pathname.includes('/admin/audit-logs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <ScrollText size={16} /> Logs
+                    </Link>
+                  </>
+                )}
+                {role === "REVIEWER" && (
+                  <>
+                    <Link href="/review/queue" className={`mobile-nav-link ${pathname.includes('/review/queue') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Inbox size={16} /> Queue
+                    </Link>
+                    <Link href="/review/skills" className={`mobile-nav-link ${pathname.includes('/review/skills') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <BookOpen size={16} /> Review Skills
+                    </Link>
+                    <Link href="/skills" className={`mobile-nav-link ${pathname === '/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Compass size={16} /> All Skills
+                    </Link>
+                  </>
+                )}
+                {role === "AUTHOR" && (
+                  <>
+                    <Link href="/studio/skills/new" className={`mobile-nav-link ${pathname.includes('/studio/skills/new') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <PlusCircle size={16} /> New Skill
+                    </Link>
+                    <Link href="/studio/skills" className={`mobile-nav-link ${pathname === '/studio/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <BookOpen size={16} /> My Skills
+                    </Link>
+                    <Link href="/skills" className={`mobile-nav-link ${pathname === '/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Compass size={16} /> All Skills
+                    </Link>
+                  </>
+                )}
+              </nav>
+            )}
+          </div>
 
           {/* Navigation Menu */}
           <nav className="header-nav">
@@ -146,54 +146,54 @@ export function Header() {
               </>
             )}
             {role === "SUPERADMIN" && (
-                <>
-                  <Link href="/admin/users" className={`header-nav-link ${pathname.includes('/admin/users') ? 'active' : ''}`}>
-                    <Users size={16} /> Users
-                  </Link>
-                  <Link href="/admin/categories" className={`header-nav-link ${pathname.includes('/admin/categories') ? 'active' : ''}`}>
-                    <Grid size={16} /> Categories
-                  </Link>
-                  <Link href="/admin/series" className={`header-nav-link ${pathname.includes('/admin/series') ? 'active' : ''}`}>
-                    <Layers size={16} /> Series
-                  </Link>
-                  <Link href="/admin/skills" className={`header-nav-link ${pathname.includes('/admin/skills') ? 'active' : ''}`}>
-                    <BookOpen size={16} /> Skills
-                  </Link>
-                  <Link href="/admin/docs" className={`header-nav-link ${pathname.includes('/admin/docs') ? 'active' : ''}`}>
-                    <BookOpen size={16} /> Docs
-                  </Link>
-                  <Link href="/admin/audit-logs" className={`header-nav-link ${pathname.includes('/admin/audit-logs') ? 'active' : ''}`}>
-                    <ScrollText size={16} /> Logs
-                  </Link>
-                </>
-              )}
-              {role === "REVIEWER" && (
-                <>
-                  <Link href="/review/queue" className={`header-nav-link ${pathname.includes('/review/queue') ? 'active' : ''}`}>
-                    <Inbox size={16} /> Queue
-                  </Link>
-                  <Link href="/review/skills" className={`header-nav-link ${pathname.includes('/review/skills') ? 'active' : ''}`}>
-                    <BookOpen size={16} /> Review Skills
-                  </Link>
-                  <Link href="/skills" className={`header-nav-link ${pathname === '/skills' ? 'active' : ''}`}>
-                    <Compass size={16} /> All Skills
-                  </Link>
-                </>
-              )}
-              {role === "AUTHOR" && (
-                <>
-                  <Link href="/studio/skills/new" className={`header-nav-link ${pathname.includes('/studio/skills/new') ? 'active' : ''}`}>
-                    <PlusCircle size={16} /> New Skill
-                  </Link>
-                  <Link href="/studio/skills" className={`header-nav-link ${pathname === '/studio/skills' ? 'active' : ''}`}>
-                    <BookOpen size={16} /> My Skills
-                  </Link>
-                  <Link href="/skills" className={`header-nav-link ${pathname === '/skills' ? 'active' : ''}`}>
-                    <Compass size={16} /> All Skills
-                  </Link>
-                </>
-              )}
-            </nav>
+              <>
+                <Link href="/admin/users" className={`header-nav-link ${pathname.includes('/admin/users') ? 'active' : ''}`}>
+                  <Users size={16} /> Users
+                </Link>
+                <Link href="/admin/categories" className={`header-nav-link ${pathname.includes('/admin/categories') ? 'active' : ''}`}>
+                  <Grid size={16} /> Categories
+                </Link>
+                <Link href="/admin/series" className={`header-nav-link ${pathname.includes('/admin/series') ? 'active' : ''}`}>
+                  <Layers size={16} /> Series
+                </Link>
+                <Link href="/admin/skills" className={`header-nav-link ${pathname.includes('/admin/skills') ? 'active' : ''}`}>
+                  <BookOpen size={16} /> Skills
+                </Link>
+                <Link href="/admin/docs" className={`header-nav-link ${pathname.includes('/admin/docs') ? 'active' : ''}`}>
+                  <BookOpen size={16} /> Docs
+                </Link>
+                <Link href="/admin/audit-logs" className={`header-nav-link ${pathname.includes('/admin/audit-logs') ? 'active' : ''}`}>
+                  <ScrollText size={16} /> Logs
+                </Link>
+              </>
+            )}
+            {role === "REVIEWER" && (
+              <>
+                <Link href="/review/queue" className={`header-nav-link ${pathname.includes('/review/queue') ? 'active' : ''}`}>
+                  <Inbox size={16} /> Queue
+                </Link>
+                <Link href="/review/skills" className={`header-nav-link ${pathname.includes('/review/skills') ? 'active' : ''}`}>
+                  <BookOpen size={16} /> Review Skills
+                </Link>
+                <Link href="/skills" className={`header-nav-link ${pathname === '/skills' ? 'active' : ''}`}>
+                  <Compass size={16} /> All Skills
+                </Link>
+              </>
+            )}
+            {role === "AUTHOR" && (
+              <>
+                <Link href="/studio/skills/new" className={`header-nav-link ${pathname.includes('/studio/skills/new') ? 'active' : ''}`}>
+                  <PlusCircle size={16} /> New Skill
+                </Link>
+                <Link href="/studio/skills" className={`header-nav-link ${pathname === '/studio/skills' ? 'active' : ''}`}>
+                  <BookOpen size={16} /> My Skills
+                </Link>
+                <Link href="/skills" className={`header-nav-link ${pathname === '/skills' ? 'active' : ''}`}>
+                  <Compass size={16} /> All Skills
+                </Link>
+              </>
+            )}
+          </nav>
         </div>
 
         <div className="header-actions">
@@ -204,10 +204,10 @@ export function Header() {
           )}
 
           <ThemeToggle />
-          
+
           {role && (
             <div className="dropdown-container" ref={dropdownRef}>
-              <button 
+              <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className={`header-icon-btn ${dropdownOpen ? 'active' : ''}`}
                 aria-label="User menu"
@@ -223,7 +223,7 @@ export function Header() {
                   </div>
                   <div className="dropdown-divider"></div>
 
-                  <button 
+                  <button
                     onClick={() => {
                       setIsProfileModalOpen(true);
                       setDropdownOpen(false);
@@ -244,7 +244,7 @@ export function Header() {
                     <ChevronRight size={14} className="text-zinc-400" />
                   </button>
                   <div className="dropdown-divider"></div>
-                  <button 
+                  <button
                     onClick={() => signOut({ callbackUrl: '/auth/login' })}
                     className="dropdown-item danger"
                   >
@@ -256,8 +256,8 @@ export function Header() {
           )}
 
           {!session && (
-            <Link 
-              href="/auth/login" 
+            <Link
+              href="/auth/login"
               className="ml-2 px-3 py-1.5 text-sm font-medium bg-[var(--primary)] text-zinc-900 rounded-md hover:opacity-90 transition-opacity"
             >
               Sign in
@@ -265,9 +265,9 @@ export function Header() {
           )}
         </div>
       </div>
-      <EditProfileModal 
-        isOpen={isProfileModalOpen} 
-        onClose={() => setIsProfileModalOpen(false)} 
+      <EditProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
       />
     </header>
   );
