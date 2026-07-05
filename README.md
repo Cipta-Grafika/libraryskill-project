@@ -157,5 +157,5 @@ This project is licensed under the **MIT License**.
 ---
 
 <p align="center">
-  Built with ❤️ by <a href="https://github.com/Cipta-Grafika">Cipta Grafika</a>
+  Built with 🔥 by <a href="https://github.com/astrocoding">Zaenal Alfian</a>
 </p>
