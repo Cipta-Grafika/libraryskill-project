@@ -115,7 +115,7 @@ export default function LoginPage() {
               {loading ? "Signing in..." : "Sign In"}
             </button>
 
-            <div className="flex items-center my-6">
+            <div className="flex items-center my-2">
               <div className="flex-1 border-t border-zinc-200 dark:border-zinc-800"></div>
               <div className="px-4 text-sm text-zinc-500">OR</div>
               <div className="flex-1 border-t border-zinc-200 dark:border-zinc-800"></div>
