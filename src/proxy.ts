@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || "default-secret-key-change-in-production" });
   const { pathname } = req.nextUrl;
 
@@ -20,6 +20,25 @@ export async function middleware(req: NextRequest) {
     if (role === "AUTHOR") return "/studio";
     return "/"; // Default fallback
   };
+
+  // Markdown Negotiation for Agents (RFC 8288 / Markdown for Agents)
+  // If an AI Agent requests text/markdown, serve the raw markdown version instead of HTML.
+  const acceptHeader = req.headers.get("accept") || "";
+  if (acceptHeader.includes("text/markdown")) {
+    if (pathname === "/") {
+      return NextResponse.rewrite(new URL(`/llms.txt`, req.url));
+    }
+    // Only apply to public content routes (docs and skills)
+    if (pathname.startsWith("/docs/")) {
+      return NextResponse.rewrite(new URL(`/raw${pathname}`, req.url));
+    }
+    // Match skill page /[categorySlug]/[skillSlug]
+    // Exclude system/auth/admin routes
+    const isSystemRoute = pathname.startsWith("/admin") || pathname.startsWith("/studio") || pathname.startsWith("/review") || pathname.startsWith("/auth") || pathname.startsWith("/api") || pathname.startsWith("/raw") || pathname === "/skills";
+    if (!isSystemRoute) {
+      return NextResponse.rewrite(new URL(`/raw${pathname}`, req.url));
+    }
+  }
 
   // 1. If user is logged in and tries to access login/register or root, redirect to their dashboard
   if (isAuthPage || pathname === "/") {

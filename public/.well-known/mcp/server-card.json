@@ -1,0 +1,15 @@
+{
+  "serverInfo": {
+    "name": "libraryskill-mcp-server",
+    "version": "1.0.0",
+    "description": "LibrarySkill Agent Context Protocol Server for discovering prompt specifications."
+  },
+  "endpoints": {
+    "transport": "https://libraryskill.com/api/mcp"
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": true
+  }
+}

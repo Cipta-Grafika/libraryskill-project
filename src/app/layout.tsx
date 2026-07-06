@@ -62,6 +62,46 @@ export default async function RootLayout({
             </AlertProvider>
           </ThemeProvider>
         </AuthProvider>
+
+        {/* WebMCP: Expose basic site tools to AI Agents navigating via browser */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              const registerWebMCP = function() {
+                if (typeof navigator !== 'undefined' && navigator.modelContext && typeof navigator.modelContext.provideContext === 'function') {
+                  navigator.modelContext.provideContext({
+                    tools: [
+                      {
+                        name: "search_skills",
+                        description: "Search for prompt specifications in LibrarySkill",
+                        inputSchema: {
+                          type: "object",
+                          properties: {
+                            query: { type: "string" }
+                          },
+                          required: ["query"]
+                        },
+                        execute: async function(inputs) {
+                          const res = await fetch("/api/search/skills?q=" + encodeURIComponent(inputs.query));
+                          return await res.json();
+                        }
+                      }
+                    ]
+                  });
+                }
+              };
+              
+              // Coba daftarkan sekarang jika API sudah tersedia
+              registerWebMCP();
+              
+              // Tunggu injeksi extension (jika extension dimuat lebih lambat)
+              if (typeof window !== 'undefined') {
+                window.addEventListener('load', registerWebMCP);
+                window.addEventListener('modelcontextready', registerWebMCP);
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
