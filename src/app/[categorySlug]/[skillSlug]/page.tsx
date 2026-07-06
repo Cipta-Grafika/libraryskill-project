@@ -64,6 +64,9 @@ export async function generateMetadata(
     },
     alternates: {
       canonical: `/${resolvedParams.categorySlug}/${resolvedParams.skillSlug}`,
+      types: {
+        "text/markdown": `${process.env.NEXT_PUBLIC_APP_URL || 'https://libraryskill.com'}/raw/${resolvedParams.categorySlug}/${resolvedParams.skillSlug}.md`
+      }
     },
   };
 }
@@ -90,12 +93,31 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
     notFound();
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": skill.title,
+    "author": {
+      "@type": "Person",
+      "name": skill.author.name
+    },
+    "about": [
+      ...skill.tags,
+      "AI Agent Skill"
+    ],
+    "inLanguage": "id-ID"
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <PageBanner backHref="/skills" backText="Back to Skills" />
       
       <main className="public-skill-container flex-grow mt-4 md:mt-8">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <div className="public-skill-layout">
           
           {/* Main Content (Left) */}

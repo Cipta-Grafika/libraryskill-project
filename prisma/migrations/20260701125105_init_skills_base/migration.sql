@@ -55,3 +55,17 @@ CREATE UNIQUE INDEX "skills_roleSlug_slug_key" ON "skills"("roleSlug", "slug");
 
 -- AddForeignKey
 ALTER TABLE "skills" ADD CONSTRAINT "skills_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Seed Superadmin User
+INSERT INTO "users" ("id", "name", "email", "password", "role", "slug", "bio", "createdAt", "updatedAt") 
+VALUES (
+    'clyabc123000008l412345678', 
+    'Super Admin', 
+    'superadmin@example.com', 
+    '$2b$10$HqnLwsE8v5YgSuabqR0VpeusTBHhf4f.K4kxAs8klL.GpdZ3iAUxa', 
+    'SUPERADMIN', 
+    'super-admin', 
+    'System Administrator', 
+    CURRENT_TIMESTAMP, 
+    CURRENT_TIMESTAMP
+);
