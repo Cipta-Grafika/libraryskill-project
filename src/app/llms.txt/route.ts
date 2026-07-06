@@ -18,15 +18,26 @@ export async function GET() {
 
 > A public skill library for structured AI Agent prompts, reusable workflows, and LLM-readable documentation.
 
-LibrarySkill provides reviewed Markdown-based skill specifications for AI Agents and LLMs.
+LibrarySkill provides reviewed Markdown-based skill specifications for AI Agents and LLMs. Each skill is designed to support consistent output, clear constraints, and reusable prompt workflows.
 
 ## Published Skills
-
 `;
 
-  const skillsList = skills.map((skill) => {
-    const catSlug = skill.category?.slug || "uncategorized";
-    return `- [${skill.title}](${baseUrl}/raw/${catSlug}/${skill.slug}.md): ${skill.description || "No description provided."}`;
+  // Group skills dynamically by category
+  const groupedSkills = skills.reduce((acc, skill) => {
+    const catName = skill.category?.name || "Uncategorized";
+    if (!acc[catName]) acc[catName] = [];
+    acc[catName].push(skill);
+    return acc;
+  }, {} as Record<string, typeof skills>);
+
+  const skillsList = Object.entries(groupedSkills).map(([catName, catSkills]) => {
+    let section = `\n### ${catName}\n\n`;
+    section += catSkills.map((skill) => {
+      const catSlug = skill.category?.slug || "uncategorized";
+      return `- [${skill.title}](${baseUrl}/raw/${catSlug}/${skill.slug}.md): ${skill.description || "No description provided."}`;
+    }).join("\n");
+    return section;
   }).join("\n");
 
   const content = header + skillsList + "\n";
