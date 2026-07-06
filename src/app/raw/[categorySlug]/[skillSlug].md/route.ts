@@ -23,6 +23,14 @@ export async function GET(
       description: true,
       content: true,
       status: true,
+      slug: true,
+      outputModes: true,
+      category: {
+        select: { slug: true }
+      },
+      author: {
+        select: { slug: true }
+      }
     },
   });
 
@@ -30,18 +38,42 @@ export async function GET(
     return new NextResponse("404 Not Found", { status: 404 });
   }
 
-  // Build the full markdown: title → description → content
+  // Generate YAML Frontmatter for RAG & Crawlers
+  const frontmatter = `---
+skill_id: ${skill.slug}
+version: 1.0.0
+category: ${skill.category?.slug || "uncategorized"}
+author: ${skill.author.slug}
+language: id-ID
+output_type:
+${skill.outputModes.length > 0 ? skill.outputModes.map((mode) => `  - ${mode}`).join("\n") : "  - text"}
+recommended_for:
+  - ChatGPT
+  - Claude
+  - Gemini
+  - DeepSeek
+  - Grok
+source_type: skill_specification
+---`;
+
+  // Build the full markdown: title → description
   const titleBlock = `# ${skill.title}`;
   const descriptionBlock = skill.description ? `### ${skill.description}` : "";
-  const markdownParts = [titleBlock, descriptionBlock, skill.content].filter(Boolean);
+  
+  // Inject chunk anchors into content for RAG
+  const contentWithAnchors = skill.content.replace(/^(#+)\s+(.*)$/gm, (match, hashes, title) => {
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    return `<a id="section-${slug}"></a>\n${match}`;
+  });
+
+  const markdownParts = [frontmatter, titleBlock, descriptionBlock, contentWithAnchors].filter(Boolean);
   const fullMarkdown = markdownParts.join("\n\n");
 
-  // Return raw Markdown as text/plain, and force download
+  // Return raw Markdown as text/markdown without forcing download
   return new NextResponse(fullMarkdown, {
     status: 200,
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${cleanSkillSlug}.md"`,
       "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
     },
   });
