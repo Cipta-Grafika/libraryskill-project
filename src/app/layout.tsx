@@ -67,10 +67,9 @@ export default async function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              if (typeof window !== 'undefined' && window.navigator) {
-                window.navigator.modelContext = window.navigator.modelContext || {};
-                window.navigator.modelContext.provideContext = function() {
-                  return {
+              const registerWebMCP = function() {
+                if (typeof navigator !== 'undefined' && navigator.modelContext && typeof navigator.modelContext.provideContext === 'function') {
+                  navigator.modelContext.provideContext({
                     tools: [
                       {
                         name: "search_skills",
@@ -88,8 +87,17 @@ export default async function RootLayout({
                         }
                       }
                     ]
-                  };
-                };
+                  });
+                }
+              };
+              
+              // Coba daftarkan sekarang jika API sudah tersedia
+              registerWebMCP();
+              
+              // Tunggu injeksi extension (jika extension dimuat lebih lambat)
+              if (typeof window !== 'undefined') {
+                window.addEventListener('load', registerWebMCP);
+                window.addEventListener('modelcontextready', registerWebMCP);
               }
             `,
           }}

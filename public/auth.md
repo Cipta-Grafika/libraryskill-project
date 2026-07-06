@@ -4,11 +4,15 @@ description: Information about authentication requirements for LibrarySkill agen
 contact: hello@libraryskill.com
 ---
 
-# Authentication
+# Auth.md
 
-LibrarySkill is a public, open-access platform designed for LLMs, AI Agents, and human developers. 
+This is the Auth.md file for LibrarySkill. LibrarySkill is a public, open-access platform designed for LLMs, AI Agents, and human developers. 
 
-## Registration
+## Agent Registration
+
+- **Registration endpoint:** none
+- **Supported identity types:** none
+- **Credential types:** none
 
 Agent registration is not supported or required. All data retrieval endpoints are fully public.
 
