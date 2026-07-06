@@ -1,6 +1,17 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ categorySlug: string; skillSlug: string }> }
@@ -66,7 +77,17 @@ source_type: skill_specification
     return `<a id="section-${slug}"></a>\n${match}`;
   });
 
-  const markdownParts = [frontmatter, titleBlock, descriptionBlock, contentWithAnchors].filter(Boolean);
+  // Transform relative image URLs to absolute URLs for RAG consistency
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://libraryskill.com";
+  const contentWithAbsoluteImages = contentWithAnchors.replace(
+    /(\]\()(\/upload\/img\/[^)]+)(\))/g, 
+    `$1${baseUrl}$2$3`
+  ).replace(
+    /(src=["'])(\/upload\/img\/[^"']+)(["'])/g,
+    `$1${baseUrl}$2$3`
+  );
+
+  const markdownParts = [frontmatter, titleBlock, descriptionBlock, contentWithAbsoluteImages].filter(Boolean);
   const fullMarkdown = markdownParts.join("\n\n");
 
   // Return raw Markdown as text/markdown without forcing download
@@ -75,6 +96,9 @@ source_type: skill_specification
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
       "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   });
 }

@@ -204,6 +204,11 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
                     View Raw Markdown
                   </Link>
                 </p>
+                <p className="public-sidebar-text">
+                  <a href={`/raw/${skill.category?.slug}/${skill.slug}.md`} download={`${skill.title}-${skill.slug}.md`} className="text-primary-600 hover:underline">
+                    Download Skill
+                  </a>
+                </p>
               </div>
 
               {/* Compatibility Section */}
