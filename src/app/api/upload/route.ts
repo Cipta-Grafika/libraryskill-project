@@ -40,9 +40,10 @@ export async function POST(req: Request) {
     const path = join(uploadDir, filename);
     await writeFile(path, buffer);
 
-    // Return the URL
+    // Return the absolute URL for consistency in Markdown and RAG
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://libraryskill.com";
     return NextResponse.json({ 
-      url: `/upload/img/${filename}`,
+      url: `${baseUrl}/upload/img/${filename}`,
       success: true 
     });
   } catch (error) {
