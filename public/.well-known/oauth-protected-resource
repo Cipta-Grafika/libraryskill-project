@@ -1,0 +1,9 @@
+{
+  "resource": "https://libraryskill.com",
+  "authorization_servers": [
+    "https://libraryskill.com"
+  ],
+  "scopes_supported": [
+    "public"
+  ]
+}
