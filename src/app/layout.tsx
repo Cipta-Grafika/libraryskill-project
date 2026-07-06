@@ -62,6 +62,38 @@ export default async function RootLayout({
             </AlertProvider>
           </ThemeProvider>
         </AuthProvider>
+
+        {/* WebMCP: Expose basic site tools to AI Agents navigating via browser */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && window.navigator) {
+                window.navigator.modelContext = window.navigator.modelContext || {};
+                window.navigator.modelContext.provideContext = function() {
+                  return {
+                    tools: [
+                      {
+                        name: "search_skills",
+                        description: "Search for prompt specifications in LibrarySkill",
+                        inputSchema: {
+                          type: "object",
+                          properties: {
+                            query: { type: "string" }
+                          },
+                          required: ["query"]
+                        },
+                        execute: async function(inputs) {
+                          const res = await fetch("/api/search/skills?q=" + encodeURIComponent(inputs.query));
+                          return await res.json();
+                        }
+                      }
+                    ]
+                  };
+                };
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
