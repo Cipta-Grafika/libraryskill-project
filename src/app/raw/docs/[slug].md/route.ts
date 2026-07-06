@@ -14,20 +14,16 @@ export async function OPTIONS() {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ categorySlug: string; skillSlug: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   const resolvedParams = await params;
   
-  // Next.js might include or exclude the .md depending on how the dynamic route is parsed.
-  // We'll strip it just to be safe.
-  const cleanSkillSlug = resolvedParams.skillSlug.replace(/\.md$/, "");
+  // Clean slug
+  const cleanDocSlug = resolvedParams.slug.replace(/\.md$/, "");
 
-  const skill = await db.skill.findFirst({
+  const doc = await db.doc.findFirst({
     where: {
-      slug: cleanSkillSlug,
-      category: {
-        slug: resolvedParams.categorySlug
-      }
+      slug: cleanDocSlug,
     },
     select: {
       title: true,
@@ -35,8 +31,7 @@ export async function GET(
       content: true,
       status: true,
       slug: true,
-      outputModes: true,
-      category: {
+      series: {
         select: { slug: true }
       },
       author: {
@@ -45,34 +40,34 @@ export async function GET(
     },
   });
 
-  if (!skill || skill.status !== "PUBLISHED") {
+  if (!doc || doc.status !== "PUBLISHED") {
     return new NextResponse("404 Not Found", { status: 404 });
   }
 
   // Generate YAML Frontmatter for RAG & Crawlers
   const frontmatter = `---
-skill_id: ${skill.slug}
+doc_id: ${doc.slug}
 version: 1.0.0
-category: ${skill.category?.slug || "uncategorized"}
-author: ${skill.author.slug}
+series: ${doc.series?.slug || "none"}
+author: ${doc.author.slug}
 language: id-ID
 output_type:
-${skill.outputModes.length > 0 ? skill.outputModes.map((mode) => `  - ${mode}`).join("\n") : "  - text"}
+  - text
 recommended_for:
   - ChatGPT
   - Claude
   - Gemini
   - DeepSeek
   - Grok
-source_type: skill_specification
+source_type: documentation
 ---`;
 
   // Build the full markdown: title → description
-  const titleBlock = `# ${skill.title}`;
-  const descriptionBlock = skill.description ? `### ${skill.description}` : "";
+  const titleBlock = `# ${doc.title}`;
+  const descriptionBlock = doc.description ? `### ${doc.description}` : "";
   
   // Inject chunk anchors into content for RAG
-  const contentWithAnchors = skill.content.replace(/^(#+)\s+(.*)$/gm, (match, hashes, title) => {
+  const contentWithAnchors = doc.content.replace(/^(#+)\s+(.*)$/gm, (match, hashes, title) => {
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     return `<a id="section-${slug}"></a>\n${match}`;
   });
