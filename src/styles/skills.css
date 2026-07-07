@@ -152,6 +152,23 @@
 .skills-btn-outline:hover {
   background-color: var(--table-btn-hover);
 }
+
+.skills-btn-accent-outline {
+  background-color: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+.skills-btn-accent-outline:hover {
+  background-color: var(--primary-50);
+  color: var(--primary-700);
+  border-color: var(--primary-700);
+}
+:root[class~="dark"] .skills-btn-accent-outline:hover,
+.dark .skills-btn-accent-outline:hover {
+  background-color: var(--primary-900);
+  color: var(--primary-100);
+  border-color: var(--primary-100);
+}
 .skills-btn-primary {
   background-color: var(--table-btn-primary-bg);
   border: 1px solid var(--table-btn-primary-bg);
