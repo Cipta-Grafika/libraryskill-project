@@ -109,3 +109,21 @@ export async function revokePointsForUnpublishedSkill(skillId: string, authorId:
     console.error("[POINTS_ERROR] Failed to revoke points for skill", skillId, error);
   }
 }
+
+/**
+ * Automatically syncs points for any published skills that might have missed being awarded points.
+ */
+export async function syncMissingPoints() {
+  try {
+    const publishedSkills = await prisma.skill.findMany({
+      where: { status: "PUBLISHED" },
+      select: { id: true, authorId: true }
+    });
+
+    for (const skill of publishedSkills) {
+      await awardPointsForPublishedSkill(skill.id, skill.authorId);
+    }
+  } catch (error) {
+    console.error("[POINTS_ERROR] Failed to sync missing points", error);
+  }
+}

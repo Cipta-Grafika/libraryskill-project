@@ -89,7 +89,7 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
         
         if (parsedBlocks.length === 0) {
           parsedBlocks.push(
-            { id: "1", title: "Peran (Role)", content: "" },
+            { id: "1", title: "Peran AI (AI Role)", content: "" },
             { id: "2", title: "Batasan (Scope)", content: "" },
             { id: "3", title: "Objektif (Objective)", content: "" }
           );

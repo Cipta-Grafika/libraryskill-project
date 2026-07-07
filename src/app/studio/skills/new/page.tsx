@@ -28,7 +28,7 @@ export default function NewSkillPage() {
   const [tagInput, setTagInput] = useState("");
 
   const [blocks, setBlocks] = useState<ContentBlock[]>([
-    { id: "1", title: "Peran (Role)", content: "" },
+    { id: "1", title: "Peran AI (AI Role)", content: "" },
     { id: "2", title: "Batasan (Scope)", content: "" },
     { id: "3", title: "Objektif (Objective)", content: "" },
   ]);
