@@ -3,6 +3,7 @@ import { db as prisma } from "@/lib/db";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
+import { awardPointsForPublishedSkill, revokePointsForUnpublishedSkill } from "@/lib/points";
 
 export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -62,6 +63,12 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
         outputModes: data.outputModes,
       },
     });
+    
+    if (data.status === "PUBLISHED" && existing.status !== "PUBLISHED") {
+      await awardPointsForPublishedSkill(id, existing.authorId);
+    } else if (data.status && data.status !== "PUBLISHED" && existing.status === "PUBLISHED") {
+      await revokePointsForUnpublishedSkill(id, existing.authorId);
+    }
     
     await logAudit({
       userId: session.user.id,
