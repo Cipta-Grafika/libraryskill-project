@@ -34,6 +34,7 @@ model User {
   skills Skill[]
   docs   Doc[]    @relation("UserDocs")
   reviews Review[] @relation("ReviewerReviews")
+  auditLogs AuditLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -137,4 +138,27 @@ model Doc {
   @@index([seriesSlug])
   @@index([authorId])
   @@map("docs")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  action     String   // e.g., LOGIN, CREATE_USER, UPDATE_PROFILE
+  module     String   // e.g., Skills, Users, Logs, Docs
+  
+  oldData    Json?    // Using Json for structured data responses
+  newData    Json?
+  
+  ipAddress  String?
+  userAgent  String?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
+  @@index([action])
+  @@index([module])
+  @@map("logs")
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db as prisma } from "@/lib/db";
+import { logAudit } from "@/lib/audit";
 
 export async function POST(req: Request) {
   try {
@@ -40,6 +41,13 @@ export async function POST(req: Request) {
         authorId: session.user.id,
         publishedAt: status === "PUBLISHED" ? new Date() : null,
       },
+    });
+
+    await logAudit({
+      userId: session.user.id,
+      action: "CREATE_DOC",
+      module: "Docs",
+      newData: doc,
     });
 
     return NextResponse.json(doc, { status: 201 });
