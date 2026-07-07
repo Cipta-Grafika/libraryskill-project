@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db as prisma } from "@/lib/db";
+import { logAudit } from "@/lib/audit";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 export async function GET() {
   try {
@@ -19,6 +22,15 @@ export async function POST(req: Request) {
     const category = await prisma.category.create({
       data: { name, slug, description },
     });
+    
+    const session = await getServerSession(authOptions);
+    await logAudit({
+      userId: session?.user?.id,
+      action: "CREATE_CATEGORY_API",
+      module: "Categories",
+      newData: category,
+    });
+    
     return NextResponse.json(category);
   } catch (error) {
     console.error("Failed to create category:", error);

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db as prisma } from "@/lib/db";
+import { logAudit } from "@/lib/audit";
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -42,6 +43,15 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         publishedAt: status === "PUBLISHED" && existingDoc?.status !== "PUBLISHED" ? new Date() : undefined,
         updatedAt: new Date(),
       },
+    });
+    const oldDoc = await prisma.doc.findUnique({ where: { id } });
+
+    await logAudit({
+      userId: session.user.id,
+      action: "UPDATE_DOC",
+      module: "Docs",
+      oldData: oldDoc || existingDoc,
+      newData: doc,
     });
 
     return NextResponse.json(doc, { status: 200 });

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db as prisma } from "@/lib/db";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 
 export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -62,6 +63,14 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
       },
     });
     
+    await logAudit({
+      userId: session.user.id,
+      action: "UPDATE_SKILL",
+      module: "Skills",
+      oldData: existing,
+      newData: skill,
+    });
+
     return NextResponse.json(skill);
   } catch (error) {
     console.error("Failed to update skill:", error);
@@ -86,6 +95,13 @@ export async function DELETE(req: Request, context: { params: Promise<{ id: stri
     
     await prisma.skill.delete({ where: { id } });
     
+    await logAudit({
+      userId: session.user.id,
+      action: "DELETE_SKILL",
+      module: "Skills",
+      oldData: existing,
+    });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete skill:", error);

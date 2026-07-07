@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { logAudit } from "@/lib/audit";
 
 export async function GET() {
   try {
@@ -92,6 +93,13 @@ export async function PUT(req: Request) {
         bio: true,
         slug: true,
       }
+    });
+
+    await logAudit({
+      userId: session.user.id, // Assuming session.user.id is available, if not we will use updatedUser.id
+      action: "UPDATE_PROFILE",
+      module: "Users",
+      newData: updatedUser,
     });
 
     return NextResponse.json(updatedUser);
