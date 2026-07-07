@@ -8,10 +8,12 @@ export async function proxy(req: NextRequest) {
 
   const isAuthPage = pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register");
   
+  const isExactOrPrefix = (path: string, prefix: string) => path === prefix || path.startsWith(`${prefix}/`);
+
   // Routes mapping based on roles
-  const isAdminRoute = pathname.startsWith("/admin");
-  const isStudioRoute = pathname.startsWith("/studio");
-  const isReviewRoute = pathname.startsWith("/review");
+  const isAdminRoute = isExactOrPrefix(pathname, "/admin");
+  const isStudioRoute = isExactOrPrefix(pathname, "/studio");
+  const isReviewRoute = isExactOrPrefix(pathname, "/review");
 
   // Helper to determine home route based on role
   const getHomeRoute = (role?: string) => {
@@ -34,7 +36,14 @@ export async function proxy(req: NextRequest) {
     }
     // Match skill page /[categorySlug]/[skillSlug]
     // Exclude system/auth/admin routes
-    const isSystemRoute = pathname.startsWith("/admin") || pathname.startsWith("/studio") || pathname.startsWith("/review") || pathname.startsWith("/auth") || pathname.startsWith("/api") || pathname.startsWith("/raw") || pathname === "/skills";
+    const isSystemRoute = 
+      isExactOrPrefix(pathname, "/admin") || 
+      isExactOrPrefix(pathname, "/studio") || 
+      isExactOrPrefix(pathname, "/review") || 
+      isExactOrPrefix(pathname, "/auth") || 
+      isExactOrPrefix(pathname, "/api") || 
+      isExactOrPrefix(pathname, "/raw") || 
+      pathname === "/skills";
     if (!isSystemRoute) {
       return NextResponse.rewrite(new URL(`/raw${pathname}`, req.url));
     }
