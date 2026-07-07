@@ -12,6 +12,11 @@ enum UserRole {
   SUPERADMIN
 }
 
+enum PointStatus {
+  VALIDATED
+  INVALIDATED
+}
+
 enum SkillStatus {
   DRAFT
   IN_REVIEW
@@ -35,6 +40,8 @@ model User {
   docs   Doc[]    @relation("UserDocs")
   reviews Review[] @relation("ReviewerReviews")
   auditLogs AuditLog[]
+  pointHistory PointHistory[]
+  point        UserPoint?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -60,6 +67,7 @@ model Skill {
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   reviews    Review[]
+  pointHistory PointHistory[]
 
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
@@ -161,4 +169,41 @@ model AuditLog {
   @@index([action])
   @@index([module])
   @@map("logs")
+}
+
+model PointHistory {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  skillId   String?
+  skill     Skill?      @relation(fields: [skillId], references: [id], onDelete: SetNull)
+  
+  amount    Int
+  status    PointStatus @default(VALIDATED)
+  
+  createdAt DateTime    @default(now())
+
+  userPoint UserPoint?
+
+  @@index([userId])
+  @@index([skillId])
+  @@map("point_history")
+}
+
+model UserPoint {
+  id             String       @id @default(cuid())
+  userId         String       @unique
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  pointHistoryId String?      @unique
+  pointHistory   PointHistory? @relation(fields: [pointHistoryId], references: [id], onDelete: SetNull)
+
+  totalPoint     Int          @default(0)
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([userId])
+  @@map("points")
 }
