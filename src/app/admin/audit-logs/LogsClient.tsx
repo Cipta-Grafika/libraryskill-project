@@ -8,8 +8,8 @@ type AuditLog = {
   userId: string | null;
   action: string;
   module: string;
-  oldData: any | null;
-  newData: any | null;
+  oldData: unknown | null;
+  newData: unknown | null;
   ipAddress: string | null;
   userAgent: string | null;
   createdAt: Date;
@@ -62,14 +62,14 @@ export default function LogsClient({ initialLogs }: { initialLogs: AuditLog[] })
 
     if (sortConfig) {
       filtered = [...filtered].sort((a, b) => {
-        let aVal: any = sortConfig.key === 'userName' ? (a.user?.name || "") : a[sortConfig.key as keyof AuditLog];
-        let bVal: any = sortConfig.key === 'userName' ? (b.user?.name || "") : b[sortConfig.key as keyof AuditLog];
+        const aRaw = sortConfig.key === 'userName' ? (a.user?.name || "") : a[sortConfig.key as keyof AuditLog];
+        const bRaw = sortConfig.key === 'userName' ? (b.user?.name || "") : b[sortConfig.key as keyof AuditLog];
         
-        if (aVal === null || aVal === undefined) aVal = "";
-        if (bVal === null || bVal === undefined) bVal = "";
+        const aCmp = aRaw instanceof Date ? aRaw.getTime() : (aRaw ?? "");
+        const bCmp = bRaw instanceof Date ? bRaw.getTime() : (bRaw ?? "");
         
-        if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-        if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+        if ((aCmp as string | number) < (bCmp as string | number)) return sortConfig.direction === "asc" ? -1 : 1;
+        if ((aCmp as string | number) > (bCmp as string | number)) return sortConfig.direction === "asc" ? 1 : -1;
         return 0;
       });
     }

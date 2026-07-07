@@ -11,8 +11,8 @@ export async function logAudit({
   userId?: string | null;
   action: string;
   module: string;
-  oldData?: any;
-  newData?: any;
+  oldData?: unknown;
+  newData?: unknown;
 }) {
   try {
     const headersList = await headers();
