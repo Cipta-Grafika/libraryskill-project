@@ -2,6 +2,9 @@
 
 import { db as prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { logAudit } from "@/lib/audit";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function createCategory(formData: FormData) {
   try {
@@ -22,12 +25,20 @@ export async function createCategory(formData: FormData) {
       return { error: "Category with this name/slug already exists" };
     }
 
-    await prisma.category.create({
+    const newCategory = await prisma.category.create({
       data: {
         name,
         slug,
         description: description || null,
       },
+    });
+
+    const session = await getServerSession(authOptions);
+    await logAudit({
+      userId: session?.user?.id,
+      action: "CREATE_CATEGORY",
+      module: "Categories",
+      newData: newCategory,
     });
 
     revalidatePath("/admin/categories");
@@ -57,7 +68,9 @@ export async function updateCategory(id: string, formData: FormData) {
       return { error: "Category with this name/slug already exists" };
     }
 
-    await prisma.category.update({
+    const oldCategory = await prisma.category.findUnique({ where: { id } });
+
+    const updatedCategory = await prisma.category.update({
       where: { id },
       data: {
         name,
@@ -65,6 +78,15 @@ export async function updateCategory(id: string, formData: FormData) {
         description: description || null,
         updatedAt: new Date(),
       },
+    });
+
+    const session = await getServerSession(authOptions);
+    await logAudit({
+      userId: session?.user?.id,
+      action: "UPDATE_CATEGORY",
+      module: "Categories",
+      oldData: oldCategory,
+      newData: updatedCategory,
     });
 
     revalidatePath("/admin/categories");
@@ -77,16 +99,23 @@ export async function updateCategory(id: string, formData: FormData) {
 
 export async function deleteCategory(id: string) {
   try {
-    const { getServerSession } = await import("next-auth/next");
-    const { authOptions } = await import("@/lib/auth");
     const session = await getServerSession(authOptions);
     
     if (!session || session.user?.role !== "SUPERADMIN") {
       return { error: "Unauthorized. Only superadmins can delete categories." };
     }
 
+    const oldCategory = await prisma.category.findUnique({ where: { id } });
+
     await prisma.category.delete({
       where: { id },
+    });
+
+    await logAudit({
+      userId: session.user.id,
+      action: "DELETE_CATEGORY",
+      module: "Categories",
+      oldData: oldCategory,
     });
 
     revalidatePath("/admin/categories");

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { logAudit } from "@/lib/audit";
 import { SkillStatus } from "@prisma/client";
 
 export async function submitReview(formData: FormData) {
@@ -54,6 +55,18 @@ export async function submitReview(formData: FormData) {
         }
       })
     ]);
+
+    await logAudit({
+      userId: session.user.id,
+      action: "SUBMIT_REVIEW",
+      module: "Reviews",
+      newData: {
+        skillId,
+        status,
+        noteMarkdown,
+        newSkillStatus
+      },
+    });
 
   } catch (error) {
     console.error("Failed to submit review:", error);

@@ -2,6 +2,9 @@
 
 import { db as prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { logAudit } from "@/lib/audit";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function createSeries(formData: FormData) {
   try {
@@ -22,12 +25,20 @@ export async function createSeries(formData: FormData) {
       return { error: "Series with this title/slug already exists" };
     }
 
-    await prisma.series.create({
+    const newSeries = await prisma.series.create({
       data: {
         title,
         slug,
         description: description || null,
       },
+    });
+
+    const session = await getServerSession(authOptions);
+    await logAudit({
+      userId: session?.user?.id,
+      action: "CREATE_SERIES",
+      module: "Series",
+      newData: newSeries,
     });
 
     revalidatePath("/admin/series");
@@ -57,7 +68,9 @@ export async function updateSeries(id: string, formData: FormData) {
       return { error: "Series with this title/slug already exists" };
     }
 
-    await prisma.series.update({
+    const oldSeries = await prisma.series.findUnique({ where: { id } });
+
+    const updatedSeries = await prisma.series.update({
       where: { id },
       data: {
         title,
@@ -65,6 +78,15 @@ export async function updateSeries(id: string, formData: FormData) {
         description: description || null,
         updatedAt: new Date(),
       },
+    });
+
+    const session = await getServerSession(authOptions);
+    await logAudit({
+      userId: session?.user?.id,
+      action: "UPDATE_SERIES",
+      module: "Series",
+      oldData: oldSeries,
+      newData: updatedSeries,
     });
 
     revalidatePath("/admin/series");
@@ -77,16 +99,23 @@ export async function updateSeries(id: string, formData: FormData) {
 
 export async function deleteSeries(id: string) {
   try {
-    const { getServerSession } = await import("next-auth/next");
-    const { authOptions } = await import("@/lib/auth");
     const session = await getServerSession(authOptions);
     
     if (!session || session.user?.role !== "SUPERADMIN") {
       return { error: "Unauthorized. Only superadmins can delete series." };
     }
 
+    const oldSeries = await prisma.series.findUnique({ where: { id } });
+
     await prisma.series.delete({
       where: { id },
+    });
+
+    await logAudit({
+      userId: session.user.id,
+      action: "DELETE_SERIES",
+      module: "Series",
+      oldData: oldSeries,
     });
 
     revalidatePath("/admin/series");
