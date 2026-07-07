@@ -114,6 +114,9 @@ export function Header() {
                     <Link href="/skills" className={`mobile-nav-link ${pathname === '/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                       <Compass size={16} /> All Skills
                     </Link>
+                    <Link href="/docs" className={`mobile-nav-link ${pathname.includes('/docs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <BookOpen size={16} /> Docs
+                    </Link>
                   </>
                 )}
                 {role === "AUTHOR" && (
@@ -126,6 +129,9 @@ export function Header() {
                     </Link>
                     <Link href="/skills" className={`mobile-nav-link ${pathname === '/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                       <Compass size={16} /> All Skills
+                    </Link>
+                    <Link href="/docs" className={`mobile-nav-link ${pathname.includes('/docs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <BookOpen size={16} /> Docs
                     </Link>
                   </>
                 )}
@@ -178,6 +184,9 @@ export function Header() {
                 <Link href="/skills" className={`header-nav-link ${pathname === '/skills' ? 'active' : ''}`}>
                   <Compass size={16} /> All Skills
                 </Link>
+                <Link href="/docs" className={`header-nav-link ${pathname.includes('/docs') ? 'active' : ''}`}>
+                  <BookOpen size={16} /> Docs
+                </Link>
               </>
             )}
             {role === "AUTHOR" && (
@@ -190,6 +199,9 @@ export function Header() {
                 </Link>
                 <Link href="/skills" className={`header-nav-link ${pathname === '/skills' ? 'active' : ''}`}>
                   <Compass size={16} /> All Skills
+                </Link>
+                <Link href="/docs" className={`header-nav-link ${pathname.includes('/docs') ? 'active' : ''}`}>
+                  <BookOpen size={16} /> Docs
                 </Link>
               </>
             )}

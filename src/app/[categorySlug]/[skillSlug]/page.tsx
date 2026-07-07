@@ -8,7 +8,7 @@ import { Footer } from "@/components/Footer";
 import { BackToTop } from "@/components/BackToTop";
 import { PageBanner } from "@/components/PageBanner";
 import Link from "next/link";
-import { BookOpen, User } from "lucide-react";
+import { BookOpen, User, Download } from "lucide-react";
 import modelsData from "@/data/models.json";
 
 interface PublicSkillPageProps {
@@ -111,7 +111,15 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <PageBanner backHref="/skills" backText="Back to Skills" />
+      <PageBanner backHref="/skills" backText="Back to Skills">
+        <a 
+          href={`/raw/${skill.category?.slug}/${skill.slug}.md`} 
+          download={`${skill.title}-${skill.slug}.md`} 
+          className="skills-btn skills-btn-accent-outline skills-btn-sm"
+        >
+          <Download size={14}/> Download MD
+        </a>
+      </PageBanner>
       
       <main className="public-skill-container flex-grow mt-4 md:mt-8">
         <script
@@ -123,9 +131,9 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
           {/* Main Content (Left) */}
           <div className="public-skill-main">
             <div className="public-skill-card">
-              <div className="public-skill-card-header">
-                <BookOpen size={16} className="text-zinc-500" />
-                <span>{skill.slug}.md</span>
+              <div className="public-skill-card-header min-w-0">
+                <BookOpen size={16} className="text-zinc-500 shrink-0" />
+                <span className="truncate" title={`${skill.slug}.md`}>{skill.slug}.md</span>
               </div>
               
               <div className="public-skill-card-body" style={{ borderBottom: '1px solid var(--studio-border)' }}>

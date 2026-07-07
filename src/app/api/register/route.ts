@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { logAudit } from "@/lib/audit";
 
 
 export async function POST(req: Request) {
@@ -49,6 +50,13 @@ export async function POST(req: Request) {
         role: "AUTHOR",
         slug,
       },
+    });
+
+    await logAudit({
+      userId: user.id,
+      action: "REGISTER_USER",
+      module: "Auth",
+      newData: { id: user.id, name: user.name, email: user.email, role: user.role },
     });
 
     return NextResponse.json(
