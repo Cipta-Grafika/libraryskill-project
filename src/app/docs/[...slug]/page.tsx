@@ -109,9 +109,9 @@ export default async function PublicDocPage({ params }: PublicDocPageProps) {
           {/* Main Content (Left) */}
           <div className="public-skill-main">
             <div className="public-skill-card">
-              <div className="public-skill-card-header">
-                <BookOpen size={16} className="text-zinc-500" />
-                <span>{doc.slug}.md</span>
+              <div className="public-skill-card-header min-w-0">
+                <BookOpen size={16} className="text-zinc-500 shrink-0" />
+                <span className="truncate" title={`${doc.slug}.md`}>{doc.slug}.md</span>
               </div>
 
               <div className="public-skill-card-body" style={{ borderBottom: '1px solid var(--studio-border)' }}>
