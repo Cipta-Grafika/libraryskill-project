@@ -17,7 +17,6 @@ interface MarkdownEditorProps {
   onChange: (val: string) => void;
   placeholder?: string;
   hideTabs?: boolean;
-  onImageAdded?: (file: File, blobUrl: string) => void;
 }
 
 // Custom extension to clear formatting when pressing Enter
@@ -83,12 +82,13 @@ function injectImageSizes(markdown: string, html: string) {
   return newMarkdown;
 }
 
-export function MarkdownEditor({ value, onChange, hideTabs = false, onImageAdded }: MarkdownEditorProps) {
+export function MarkdownEditor({ value, onChange, hideTabs = false }: MarkdownEditorProps) {
   const [viewMode, setViewMode] = useState<"code" | "preview">("code");
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { showAlert, showPrompt } = useAlert();
   const isInternalUpdate = useRef(false);
+  const previousImagesRef = useRef<string[]>([]);
   const [, setUpdateTrigger] = useState(0);
 
   const editor = useEditor({
@@ -107,6 +107,30 @@ export function MarkdownEditor({ value, onChange, hideTabs = false, onImageAdded
       attributes: {
         class: "prose dark:prose-invert max-w-none focus:outline-none min-h-[150px] px-4 py-3",
       },
+      handlePaste(view, event, slice) {
+        const items = event.clipboardData?.items;
+        if (!items) return false;
+        for (const item of items) {
+          if (item.type.indexOf('image') === 0) {
+            const file = item.getAsFile();
+            if (file) {
+              uploadFile(file);
+              return true; // prevent default behavior
+            }
+          }
+        }
+        return false;
+      },
+      handleDrop(view, event, slice, moved) {
+        if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+          const file = event.dataTransfer.files[0];
+          if (file.type.indexOf('image') === 0) {
+            uploadFile(file);
+            return true; // prevent default behavior
+          }
+        }
+        return false;
+      }
     },
     onUpdate: ({ editor }) => {
       isInternalUpdate.current = true;
@@ -114,6 +138,26 @@ export function MarkdownEditor({ value, onChange, hideTabs = false, onImageAdded
       const md = (editor.storage as unknown as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown();
       // 2. Get HTML representation
       const html = editor.getHTML();
+      
+      // Auto-delete removed images
+      if (typeof window !== 'undefined') {
+        const currentImages = Array.from(new DOMParser().parseFromString(html, 'text/html').querySelectorAll('img'))
+                                   .map(img => img.getAttribute('src'))
+                                   .filter(src => src && src.startsWith('/upload/img/')) as string[];
+        
+        if (previousImagesRef.current.length > 0) {
+          const deletedImages = previousImagesRef.current.filter(src => !currentImages.includes(src));
+          deletedImages.forEach(src => {
+            fetch('/api/upload/delete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: src })
+            }).catch(console.error);
+          });
+        }
+        previousImagesRef.current = currentImages;
+      }
+
       // 3. Inject resized HTML img tags into the markdown
       const finalMd = injectImageSizes(md, html);
       
@@ -155,40 +199,34 @@ export function MarkdownEditor({ value, onChange, hideTabs = false, onImageAdded
     return null;
   }
 
+  const uploadFile = async (file: File) => {
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) {
+        editor?.chain().focus().setImage({ src: data.url, alt: file.name }).run();
+      } else {
+        showAlert({ type: "error", title: "Upload Failed", message: data.error || "Failed to upload image" });
+      }
+    } catch {
+      showAlert({ type: "error", title: "Upload Error", message: "Failed to upload image" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (onImageAdded) {
-      // Offline mode: Create local object URL for instant preview
-      const localUrl = URL.createObjectURL(file);
-      onImageAdded(file, localUrl);
-      editor.chain().focus().setImage({ src: localUrl, alt: file.name }).run();
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    } else {
-      // Legacy mode: direct upload if onImageAdded is not provided
-      setIsUploading(true);
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await res.json();
-        if (data.url) {
-          editor.chain().focus().setImage({ src: data.url, alt: file.name }).run();
-        } else {
-          showAlert({ type: "error", title: "Upload Failed", message: data.error || "Failed to upload image" });
-        }
-      } catch {
-        showAlert({ type: "error", title: "Upload Error", message: "Failed to upload image" });
-      } finally {
-        setIsUploading(false);
-        if (fileInputRef.current) fileInputRef.current.value = "";
-      }
-    }
+    await uploadFile(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const setLink = async () => {
