@@ -28,10 +28,11 @@ jobs:
             # Perbaiki error Git "dubious ownership"
             git config --global --add safe.directory /var/www/libraryskill-prod
             
-            # 1. Tarik pembaruan kode terbaru dari branch master
+            # 1. Tarik pembaruan kode terbaru dari branch master (Secure)
             echo "Pulling latest code from master..."
+            git fetch origin master
             git checkout master
-            git pull origin master
+            git reset --hard origin/master
             
             # 2. Setup NVM & Install dependensi Javascript (NPM)
             echo "Installing npm dependencies..."

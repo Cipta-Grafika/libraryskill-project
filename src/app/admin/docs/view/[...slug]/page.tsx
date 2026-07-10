@@ -1,7 +1,6 @@
 import { db as prisma } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { BookOpen, User, List } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -82,10 +81,8 @@ export default async function AdminPreviewDocPage({ params }: AdminPreviewDocPag
               </div>
                 
               <div className="public-skill-card-body pt-8">
-                <div className="review-prose">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {doc.content || "*No content provided.*"}
-                  </ReactMarkdown>
+                <div className="prose dark:prose-invert max-w-none">
+                  <MarkdownRenderer content={doc.content || ""} />
                 </div>
               </div>
             </div>
