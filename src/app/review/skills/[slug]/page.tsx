@@ -1,9 +1,9 @@
 import { db } from "@/lib/db";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { ReviewForm } from "./ReviewForm";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { formatDistanceToNow } from "date-fns";
-import { User, Clock, ExternalLink, Check, X } from "lucide-react";
+import { User, Clock } from "lucide-react";
 import Link from "next/link";
 import { BackToTop } from "@/components/BackToTop";
 
