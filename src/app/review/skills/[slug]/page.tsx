@@ -1,10 +1,9 @@
 import { db } from "@/lib/db";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ReviewForm } from "./ReviewForm";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { formatDistanceToNow } from "date-fns";
-import { User, Clock } from "lucide-react";
+import { User, Clock, ExternalLink, Check, X } from "lucide-react";
 import Link from "next/link";
 import { BackToTop } from "@/components/BackToTop";
 
@@ -103,11 +102,9 @@ export default async function ReviewDetailPage({ params }: ReviewDetailPageProps
               )}
             </header>
 
-            <div className="review-prose">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {skill.content || "*No content provided.*"}
-              </ReactMarkdown>
-            </div>
+              <div className="prose dark:prose-invert max-w-none">
+                <MarkdownRenderer content={skill.content || ""} />
+              </div>
           </article>
         </div>
         {/* Kolom Kanan 30%: Review Form & Metadata */}

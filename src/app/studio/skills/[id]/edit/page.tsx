@@ -30,6 +30,7 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
   const [status, setStatus] = useState("DRAFT");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingImages, setPendingImages] = useState<Record<string, File>>({});
   const { showAlert } = useAlert();
 
   useEffect(() => {
@@ -89,7 +90,7 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
         
         if (parsedBlocks.length === 0) {
           parsedBlocks.push(
-            { id: "1", title: "Peran (Role)", content: "" },
+            { id: "1", title: "Peran AI (AI Role)", content: "" },
             { id: "2", title: "Batasan (Scope)", content: "" },
             { id: "3", title: "Objektif (Objective)", content: "" }
           );
@@ -109,7 +110,7 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
   const handleSubmit = async (e: React.FormEvent, newStatus?: string) => {
     e.preventDefault();
     
-    const finalContent = blocks
+    let finalContent = blocks
       .filter((b) => b.title.trim() || b.content.trim())
       .map((b) => `# ${b.title}\n\n${b.content}`)
       .join("\n\n");
@@ -120,9 +121,33 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
     }
 
     setIsSubmitting(true);
-    const finalStatus = newStatus || status;
-    
     try {
+      // 1. Upload any pending offline images that are actually used in the content
+      const usedBlobUrls = Object.keys(pendingImages).filter((url) => finalContent.includes(url));
+      
+      for (const blobUrl of usedBlobUrls) {
+        const file = pendingImages[blobUrl];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          if (uploadData.url) {
+            // Replace the local blobUrl with the production URL
+            finalContent = finalContent.replaceAll(blobUrl, uploadData.url);
+          }
+        } else {
+          console.error("Failed to upload image during save");
+        }
+      }
+
+      // 2. Submit the skill data
+      const finalStatus = newStatus || status;
       const res = await fetch(`/api/skills/${params.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -320,6 +345,9 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
                   const newBlocks = [...blocks];
                   newBlocks[index].content = val;
                   setBlocks(newBlocks);
+                }}
+                onImageAdded={(file, blobUrl) => {
+                  setPendingImages((prev) => ({ ...prev, [blobUrl]: file }));
                 }}
                 hideTabs={true}
                 placeholder={`Write content for ${block.title || 'this block'}...`}

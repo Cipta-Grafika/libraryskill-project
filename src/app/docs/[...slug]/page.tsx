@@ -1,8 +1,7 @@
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { BackToTop } from "@/components/BackToTop";
@@ -124,11 +123,9 @@ export default async function PublicDocPage({ params }: PublicDocPageProps) {
               </div>
 
               <div className="public-skill-card-body pt-8">
-                <div className="review-prose">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {doc.content || "*No content provided.*"}
-                  </ReactMarkdown>
-                </div>
+                  <div className="prose dark:prose-invert max-w-none">
+                    <MarkdownRenderer content={doc.content || ""} />
+                  </div>
               </div>
             </div>
           </div>
