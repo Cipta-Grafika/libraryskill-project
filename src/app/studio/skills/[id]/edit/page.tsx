@@ -109,7 +109,7 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
   const handleSubmit = async (e: React.FormEvent, newStatus?: string) => {
     e.preventDefault();
     
-    let finalContent = blocks
+    const finalContent = blocks
       .filter((b) => b.title.trim() || b.content.trim())
       .map((b) => `# ${b.title}\n\n${b.content}`)
       .join("\n\n");

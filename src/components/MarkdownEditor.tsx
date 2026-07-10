@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+
 import { Bold, Italic, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Quote, Heading1, Heading2, Heading3 } from "lucide-react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import { useAlert } from "@/components/AlertProvider";
@@ -107,7 +107,7 @@ export function MarkdownEditor({ value, onChange, hideTabs = false }: MarkdownEd
       attributes: {
         class: "prose dark:prose-invert max-w-none focus:outline-none min-h-[150px] px-4 py-3",
       },
-      handlePaste(view, event, slice) {
+      handlePaste(view, event) {
         const items = event.clipboardData?.items;
         if (!items) return false;
         for (const item of items) {

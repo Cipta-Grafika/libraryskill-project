@@ -33,9 +33,9 @@ export async function POST(req: Request) {
     
     try {
       await unlink(filePath);
-    } catch (e: any) {
+    } catch (e: unknown) {
       // If file doesn't exist, we can ignore the error
-      if (e.code !== 'ENOENT') {
+      if (typeof e === 'object' && e !== null && 'code' in e && (e as { code: string }).code !== 'ENOENT') {
         throw e;
       }
     }

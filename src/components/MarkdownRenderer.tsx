@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
 import ReactMarkdown, { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -17,7 +18,7 @@ function parseStyle(styleString: string | undefined): React.CSSProperties {
     if (property && value) {
       // Convert property name from kebab-case to camelCase
       const camelProperty = property.trim().replace(/-([a-z])/g, g => g[1].toUpperCase());
-      (style as any)[camelProperty] = value.trim();
+      (style as Record<string, string>)[camelProperty] = value.trim();
     }
   });
   
@@ -45,12 +46,12 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
       if (wrapperStyleStr) {
         return (
           <div style={parseStyle(wrapperStyleStr)}>
-            <img {...imgProps} />
+            <img alt={props.alt || ""} {...imgProps} />
           </div>
         );
       }
 
-      return <img {...imgProps} />;
+      return <img alt={props.alt || ""} {...imgProps} />;
     }
   };
 

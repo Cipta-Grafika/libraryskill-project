@@ -90,7 +90,7 @@ export default function NewSkillPage() {
   const handleSubmit = async (e: React.FormEvent, status: "DRAFT" | "IN_REVIEW" | "PUBLISHED" = "DRAFT") => {
     e.preventDefault();
 
-    let finalContent = blocks
+    const finalContent = blocks
       .filter((b) => b.title.trim() || b.content.trim())
       .map((b) => `# ${b.title}\n\n${b.content}`)
       .join("\n\n");
