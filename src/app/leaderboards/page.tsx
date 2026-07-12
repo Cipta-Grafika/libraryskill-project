@@ -18,7 +18,10 @@ export default async function LeaderboardPage() {
   await syncMissingPoints();
 
   const authorsRaw = await db.user.findMany({
-    where: { role: "AUTHOR" },
+    where: { 
+      role: "AUTHOR",
+      moderator: { not: true }
+    },
     select: {
       id: true,
       name: true,

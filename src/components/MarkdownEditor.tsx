@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { MarkdownRenderer } from "@/components/MarkdownRenderer";
-import { Bold, Italic, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Quote, Heading1, Heading2, Heading3 } from "lucide-react";
+
+import { Bold, Italic, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Quote, Heading1, Heading2, Heading3, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react";
 import { useEditor, EditorContent } from "@tiptap/react";
+import TextAlign from '@tiptap/extension-text-align';
+import Paragraph from '@tiptap/extension-paragraph';
+import Heading from '@tiptap/extension-heading';
 import { useAlert } from "@/components/AlertProvider";
 import { Extension } from "@tiptap/core";
 import { Plugin } from "prosemirror-state";
@@ -12,12 +15,13 @@ import { Markdown } from "tiptap-markdown";
 import ImageResize from "tiptap-extension-resize-image";
 import "./MarkdownEditor.css";
 
+// Tailwind Safelist: text-left text-center text-right text-justify
+
 interface MarkdownEditorProps {
   value: string;
   onChange: (val: string) => void;
   placeholder?: string;
   hideTabs?: boolean;
-  onImageAdded?: (file: File, blobUrl: string) => void;
 }
 
 // Custom extension to clear formatting when pressing Enter
@@ -83,17 +87,106 @@ function injectImageSizes(markdown: string, html: string) {
   return newMarkdown;
 }
 
-export function MarkdownEditor({ value, onChange, hideTabs = false, onImageAdded }: MarkdownEditorProps) {
+const CustomTextAlign = TextAlign.extend({
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          textAlign: {
+            default: this.options.defaultAlignment,
+            parseHTML: element => {
+              let alignClass = typeof element.className === 'string' && element.className.match(/text-(left|center|right|justify)/);
+              if (alignClass) return alignClass[1];
+              
+              if (element.parentElement && element.parentElement.tagName === 'DIV' && typeof element.parentElement.className === 'string') {
+                alignClass = element.parentElement.className.match(/text-(left|center|right|justify)/);
+                if (alignClass) return alignClass[1];
+              }
+
+              return element.style.textAlign || this.options.defaultAlignment;
+            },
+            renderHTML: attributes => {
+              if (attributes.textAlign === this.options.defaultAlignment) {
+                return {};
+              }
+              return { class: `text-${attributes.textAlign}` };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
+
+const CustomParagraph = Paragraph.extend({
+  addStorage() {
+    return {
+      markdown: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        serialize(state: any, node: any) {
+          if (node.attrs.textAlign && node.attrs.textAlign !== 'left') {
+            state.write(`<div class="text-${node.attrs.textAlign}">\n\n`);
+            state.renderInline(node);
+            state.write('\n\n</div>');
+            state.closeBlock(node);
+          } else {
+            state.renderInline(node);
+            state.closeBlock(node);
+          }
+        },
+        parse: {
+          setup() {}
+        }
+      }
+    }
+  }
+});
+
+const CustomHeading = Heading.extend({
+  addStorage() {
+    return {
+      markdown: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        serialize(state: any, node: any) {
+          if (node.attrs.textAlign && node.attrs.textAlign !== 'left') {
+            state.write(`<div class="text-${node.attrs.textAlign}">\n\n`);
+            state.write(state.repeat('#', node.attrs.level) + ' ');
+            state.renderInline(node);
+            state.write('\n\n</div>');
+            state.closeBlock(node);
+          } else {
+            state.write(state.repeat('#', node.attrs.level) + ' ');
+            state.renderInline(node);
+            state.closeBlock(node);
+          }
+        },
+        parse: {
+          setup() {}
+        }
+      }
+    }
+  }
+});
+
+export function MarkdownEditor({ value, onChange, hideTabs = false }: MarkdownEditorProps) {
   const [viewMode, setViewMode] = useState<"code" | "preview">("code");
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { showAlert, showPrompt } = useAlert();
   const isInternalUpdate = useRef(false);
+  const previousImagesRef = useRef<string[]>([]);
   const [, setUpdateTrigger] = useState(0);
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        heading: false,
+        paragraph: false,
+      }),
+      CustomHeading,
+      CustomParagraph,
+      CustomTextAlign.configure({ types: ['heading', 'paragraph'] }),
       ClearFormattingOnEnter,
       Markdown.configure({
         html: true,
@@ -107,6 +200,30 @@ export function MarkdownEditor({ value, onChange, hideTabs = false, onImageAdded
       attributes: {
         class: "prose dark:prose-invert max-w-none focus:outline-none min-h-[150px] px-4 py-3",
       },
+      handlePaste(view, event) {
+        const items = event.clipboardData?.items;
+        if (!items) return false;
+        for (const item of items) {
+          if (item.type.indexOf('image') === 0) {
+            const file = item.getAsFile();
+            if (file) {
+              uploadFile(file);
+              return true; // prevent default behavior
+            }
+          }
+        }
+        return false;
+      },
+      handleDrop(view, event, slice, moved) {
+        if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
+          const file = event.dataTransfer.files[0];
+          if (file.type.indexOf('image') === 0) {
+            uploadFile(file);
+            return true; // prevent default behavior
+          }
+        }
+        return false;
+      }
     },
     onUpdate: ({ editor }) => {
       isInternalUpdate.current = true;
@@ -114,6 +231,26 @@ export function MarkdownEditor({ value, onChange, hideTabs = false, onImageAdded
       const md = (editor.storage as unknown as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown();
       // 2. Get HTML representation
       const html = editor.getHTML();
+      
+      // Auto-delete removed images
+      if (typeof window !== 'undefined') {
+        const currentImages = Array.from(new DOMParser().parseFromString(html, 'text/html').querySelectorAll('img'))
+                                   .map(img => img.getAttribute('src'))
+                                   .filter(src => src && src.startsWith('/upload/img/')) as string[];
+        
+        if (previousImagesRef.current.length > 0) {
+          const deletedImages = previousImagesRef.current.filter(src => !currentImages.includes(src));
+          deletedImages.forEach(src => {
+            fetch('/api/upload/delete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: src })
+            }).catch(console.error);
+          });
+        }
+        previousImagesRef.current = currentImages;
+      }
+
       // 3. Inject resized HTML img tags into the markdown
       const finalMd = injectImageSizes(md, html);
       
@@ -155,40 +292,34 @@ export function MarkdownEditor({ value, onChange, hideTabs = false, onImageAdded
     return null;
   }
 
+  const uploadFile = async (file: File) => {
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) {
+        editor?.chain().focus().setImage({ src: data.url, alt: file.name }).run();
+      } else {
+        showAlert({ type: "error", title: "Upload Failed", message: data.error || "Failed to upload image" });
+      }
+    } catch {
+      showAlert({ type: "error", title: "Upload Error", message: "Failed to upload image" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (onImageAdded) {
-      // Offline mode: Create local object URL for instant preview
-      const localUrl = URL.createObjectURL(file);
-      onImageAdded(file, localUrl);
-      editor.chain().focus().setImage({ src: localUrl, alt: file.name }).run();
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    } else {
-      // Legacy mode: direct upload if onImageAdded is not provided
-      setIsUploading(true);
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await res.json();
-        if (data.url) {
-          editor.chain().focus().setImage({ src: data.url, alt: file.name }).run();
-        } else {
-          showAlert({ type: "error", title: "Upload Failed", message: data.error || "Failed to upload image" });
-        }
-      } catch {
-        showAlert({ type: "error", title: "Upload Error", message: "Failed to upload image" });
-      } finally {
-        setIsUploading(false);
-        if (fileInputRef.current) fileInputRef.current.value = "";
-      }
-    }
+    await uploadFile(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const setLink = async () => {
@@ -215,7 +346,7 @@ export function MarkdownEditor({ value, onChange, hideTabs = false, onImageAdded
   }
 
   return (
-    <div className="md-editor-container">
+    <div className={`md-editor-container ${hideTabs ? 'md-editor-minimal' : ''}`}>
       {/* Switch Header */}
       {!hideTabs && (
         <div className="md-editor-header">
@@ -289,6 +420,33 @@ export function MarkdownEditor({ value, onChange, hideTabs = false, onImageAdded
             title="Numbered List"
           ><ListOrdered size={16} /></button>
           
+          <div className="w-px h-6 bg-zinc-300 dark:bg-zinc-700 mx-1 self-center" />
+          
+          <button 
+            type="button" 
+            onClick={() => editor.chain().focus().setTextAlign('left').run()}
+            className={`p-1.5 rounded transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-800 ${editor.isActive({ textAlign: 'left' }) ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100' : 'text-zinc-600 dark:text-zinc-400'}`}
+            title="Align Left"
+          ><AlignLeft size={16} /></button>
+          <button 
+            type="button" 
+            onClick={() => editor.chain().focus().setTextAlign('center').run()}
+            className={`p-1.5 rounded transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-800 ${editor.isActive({ textAlign: 'center' }) ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100' : 'text-zinc-600 dark:text-zinc-400'}`}
+            title="Align Center"
+          ><AlignCenter size={16} /></button>
+          <button 
+            type="button" 
+            onClick={() => editor.chain().focus().setTextAlign('right').run()}
+            className={`p-1.5 rounded transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-800 ${editor.isActive({ textAlign: 'right' }) ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100' : 'text-zinc-600 dark:text-zinc-400'}`}
+            title="Align Right"
+          ><AlignRight size={16} /></button>
+          <button 
+            type="button" 
+            onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+            className={`p-1.5 rounded transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-800 ${editor.isActive({ textAlign: 'justify' }) ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100' : 'text-zinc-600 dark:text-zinc-400'}`}
+            title="Align Justify"
+          ><AlignJustify size={16} /></button>
+
           <div className="w-px h-6 bg-zinc-300 dark:bg-zinc-700 mx-1 self-center" />
           
           <button 

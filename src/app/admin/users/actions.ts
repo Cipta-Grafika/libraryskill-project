@@ -15,6 +15,7 @@ export async function createUser(formData: FormData) {
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
     const role = formData.get("role") as "AUTHOR" | "REVIEWER" | "SUPERADMIN";
+    const moderator = formData.get("moderator") === "on";
 
     if (!name || !email || !password || !confirmPassword || !role) {
       return { error: "All fields are required" };
@@ -44,6 +45,7 @@ export async function createUser(formData: FormData) {
         password: hashedPassword,
         role,
         slug,
+        moderator,
       },
     });
 
@@ -70,6 +72,7 @@ export async function updateUser(id: string, formData: FormData) {
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
     const role = formData.get("role") as "AUTHOR" | "REVIEWER" | "SUPERADMIN";
+    const moderator = formData.get("moderator") === "on";
 
     if (!name || !email || !role) {
       return { error: "Name, email, and role are required" };
@@ -92,6 +95,7 @@ export async function updateUser(id: string, formData: FormData) {
       name,
       email,
       role,
+      moderator,
       updatedAt: new Date(), // Explicitly update the timestamp
     };
 

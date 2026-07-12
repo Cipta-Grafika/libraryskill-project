@@ -11,6 +11,7 @@ type User = {
   role: string;
   slug: string;
   bio: string | null;
+  moderator: boolean | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -282,7 +283,14 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
                     <td className="users-td" title={u.slug}>{u.slug}</td>
                     <td className="users-td text-zinc-500" title={u.bio || '-'}>{u.bio || '-'}</td>
                     <td className="users-td" style={{ textOverflow: 'clip' }}>
-                      <span className="users-td-role">{u.role.toLowerCase()}</span>
+                      <div className="flex flex-col gap-1 items-start">
+                        <span className="users-td-role">{u.role.toLowerCase()}</span>
+                        {u.moderator && (
+                          <span className="text-[10px] font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800/50 uppercase tracking-wider">
+                            Moderator
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="users-td" style={{ textOverflow: 'clip' }}>{new Date(u.createdAt).toLocaleDateString()}</td>
                     <td className="users-td" style={{ textOverflow: 'clip' }}>{new Date(u.updatedAt).toLocaleDateString()}</td>
@@ -394,6 +402,20 @@ export default function UsersClient({ initialUsers }: { initialUsers: User[] }) 
                     <option value="REVIEWER">Reviewer</option>
                     <option value="SUPERADMIN">Superadmin</option>
                   </select>
+                </div>
+
+                <div className="modal-form-group mt-4 mb-0 flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    id="moderator"
+                    name="moderator" 
+                    defaultChecked={editingUser?.moderator || false}
+                    disabled={isSubmitting}
+                    className="w-4 h-4 rounded border-gray-300 text-[var(--primary)] focus:ring-[var(--primary)]"
+                  />
+                  <label htmlFor="moderator" className="modal-label mb-0 cursor-pointer select-none">
+                    Is Moderator (Hidden from public leaderboards)
+                  </label>
                 </div>
               </div>
               <div className="modal-footer">

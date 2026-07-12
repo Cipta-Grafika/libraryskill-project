@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
 import ReactMarkdown, { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -17,7 +18,7 @@ function parseStyle(styleString: string | undefined): React.CSSProperties {
     if (property && value) {
       // Convert property name from kebab-case to camelCase
       const camelProperty = property.trim().replace(/-([a-z])/g, g => g[1].toUpperCase());
-      (style as any)[camelProperty] = value.trim();
+      (style as Record<string, string>)[camelProperty] = value.trim();
     }
   });
   
@@ -37,25 +38,40 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
         ...parseStyle(containerStyleStr),
       };
 
+      // Fix aspect ratio distortion on mobile by removing hardcoded inline height
+      // Tailwind's h-auto and max-w-full will take over for perfect responsiveness
+      delete imgStyle.height;
+
       const imgProps = {
         ...props,
         style: imgStyle,
+        className: `max-w-full h-auto rounded-md object-contain ${props.className || ""}`
       };
 
       if (wrapperStyleStr) {
         return (
           <div style={parseStyle(wrapperStyleStr)}>
-            <img {...imgProps} />
+            <img alt={props.alt || ""} {...imgProps} />
           </div>
         );
       }
 
-      return <img {...imgProps} />;
+      return <img alt={props.alt || ""} {...imgProps} />;
+    },
+    table: (props) => {
+      const tableProps = { ...props };
+      delete (tableProps as Record<string, unknown>).node;
+      
+      return (
+        <div className="overflow-x-auto w-full my-6">
+          <table className="min-w-full" {...tableProps} />
+        </div>
+      );
     }
   };
 
   return (
-    <div className="prose dark:prose-invert max-w-none">
+    <div className="prose dark:prose-invert max-w-none break-words">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
