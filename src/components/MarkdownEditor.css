@@ -228,3 +228,23 @@
   font-style: italic !important;
   color: inherit !important;
 }
+
+/* Minimal Variant (for seamless integration like in block builder) */
+.md-editor-minimal {
+  border: none;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+.md-editor-minimal .md-editor-toolbar {
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+  background-color: transparent;
+  border-bottom: none;
+}
+
+.md-editor-minimal .ProseMirror {
+  padding-left: 0;
+  padding-right: 0;
+}

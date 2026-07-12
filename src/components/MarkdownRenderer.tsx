@@ -38,9 +38,14 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
         ...parseStyle(containerStyleStr),
       };
 
+      // Fix aspect ratio distortion on mobile by removing hardcoded inline height
+      // Tailwind's h-auto and max-w-full will take over for perfect responsiveness
+      delete imgStyle.height;
+
       const imgProps = {
         ...props,
         style: imgStyle,
+        className: `max-w-full h-auto rounded-md object-contain ${props.className || ""}`
       };
 
       if (wrapperStyleStr) {
@@ -52,11 +57,21 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
       }
 
       return <img alt={props.alt || ""} {...imgProps} />;
+    },
+    table: (props) => {
+      const tableProps = { ...props };
+      delete (tableProps as Record<string, unknown>).node;
+      
+      return (
+        <div className="overflow-x-auto w-full my-6">
+          <table className="min-w-full" {...tableProps} />
+        </div>
+      );
     }
   };
 
   return (
-    <div className="prose dark:prose-invert max-w-none">
+    <div className="prose dark:prose-invert max-w-none break-words">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
