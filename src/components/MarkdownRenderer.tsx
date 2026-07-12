@@ -58,11 +58,16 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
 
       return <img alt={props.alt || ""} {...imgProps} />;
     },
-    table: ({ node, ...props }) => (
-      <div className="overflow-x-auto w-full my-6">
-        <table className="min-w-full" {...props} />
-      </div>
-    )
+    table: (props) => {
+      const tableProps = { ...props };
+      delete (tableProps as Record<string, unknown>).node;
+      
+      return (
+        <div className="overflow-x-auto w-full my-6">
+          <table className="min-w-full" {...tableProps} />
+        </div>
+      );
+    }
   };
 
   return (
