@@ -2,8 +2,11 @@
 
 import React, { useState, useRef, useEffect } from "react";
 
-import { Bold, Italic, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Quote, Heading1, Heading2, Heading3 } from "lucide-react";
+import { Bold, Italic, List, ListOrdered, Link as LinkIcon, Image as ImageIcon, Code, Quote, Heading1, Heading2, Heading3, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react";
 import { useEditor, EditorContent } from "@tiptap/react";
+import TextAlign from '@tiptap/extension-text-align';
+import Paragraph from '@tiptap/extension-paragraph';
+import Heading from '@tiptap/extension-heading';
 import { useAlert } from "@/components/AlertProvider";
 import { Extension } from "@tiptap/core";
 import { Plugin } from "prosemirror-state";
@@ -11,6 +14,8 @@ import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "tiptap-markdown";
 import ImageResize from "tiptap-extension-resize-image";
 import "./MarkdownEditor.css";
+
+// Tailwind Safelist: text-left text-center text-right text-justify
 
 interface MarkdownEditorProps {
   value: string;
@@ -82,6 +87,88 @@ function injectImageSizes(markdown: string, html: string) {
   return newMarkdown;
 }
 
+const CustomTextAlign = TextAlign.extend({
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          textAlign: {
+            default: this.options.defaultAlignment,
+            parseHTML: element => {
+              let alignClass = typeof element.className === 'string' && element.className.match(/text-(left|center|right|justify)/);
+              if (alignClass) return alignClass[1];
+              
+              if (element.parentElement && element.parentElement.tagName === 'DIV' && typeof element.parentElement.className === 'string') {
+                alignClass = element.parentElement.className.match(/text-(left|center|right|justify)/);
+                if (alignClass) return alignClass[1];
+              }
+
+              return element.style.textAlign || this.options.defaultAlignment;
+            },
+            renderHTML: attributes => {
+              if (attributes.textAlign === this.options.defaultAlignment) {
+                return {};
+              }
+              return { class: `text-${attributes.textAlign}` };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
+
+const CustomParagraph = Paragraph.extend({
+  addStorage() {
+    return {
+      markdown: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        serialize(state: any, node: any) {
+          if (node.attrs.textAlign && node.attrs.textAlign !== 'left') {
+            state.write(`<div class="text-${node.attrs.textAlign}">\n\n`);
+            state.renderInline(node);
+            state.write('\n\n</div>');
+            state.closeBlock(node);
+          } else {
+            state.renderInline(node);
+            state.closeBlock(node);
+          }
+        },
+        parse: {
+          setup() {}
+        }
+      }
+    }
+  }
+});
+
+const CustomHeading = Heading.extend({
+  addStorage() {
+    return {
+      markdown: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        serialize(state: any, node: any) {
+          if (node.attrs.textAlign && node.attrs.textAlign !== 'left') {
+            state.write(`<div class="text-${node.attrs.textAlign}">\n\n`);
+            state.write(state.repeat('#', node.attrs.level) + ' ');
+            state.renderInline(node);
+            state.write('\n\n</div>');
+            state.closeBlock(node);
+          } else {
+            state.write(state.repeat('#', node.attrs.level) + ' ');
+            state.renderInline(node);
+            state.closeBlock(node);
+          }
+        },
+        parse: {
+          setup() {}
+        }
+      }
+    }
+  }
+});
+
 export function MarkdownEditor({ value, onChange, hideTabs = false }: MarkdownEditorProps) {
   const [viewMode, setViewMode] = useState<"code" | "preview">("code");
   const [isUploading, setIsUploading] = useState(false);
@@ -93,7 +180,13 @@ export function MarkdownEditor({ value, onChange, hideTabs = false }: MarkdownEd
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        heading: false,
+        paragraph: false,
+      }),
+      CustomHeading,
+      CustomParagraph,
+      CustomTextAlign.configure({ types: ['heading', 'paragraph'] }),
       ClearFormattingOnEnter,
       Markdown.configure({
         html: true,
@@ -253,7 +346,7 @@ export function MarkdownEditor({ value, onChange, hideTabs = false }: MarkdownEd
   }
 
   return (
-    <div className="md-editor-container">
+    <div className={`md-editor-container ${hideTabs ? 'md-editor-minimal' : ''}`}>
       {/* Switch Header */}
       {!hideTabs && (
         <div className="md-editor-header">
@@ -327,6 +420,33 @@ export function MarkdownEditor({ value, onChange, hideTabs = false }: MarkdownEd
             title="Numbered List"
           ><ListOrdered size={16} /></button>
           
+          <div className="w-px h-6 bg-zinc-300 dark:bg-zinc-700 mx-1 self-center" />
+          
+          <button 
+            type="button" 
+            onClick={() => editor.chain().focus().setTextAlign('left').run()}
+            className={`p-1.5 rounded transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-800 ${editor.isActive({ textAlign: 'left' }) ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100' : 'text-zinc-600 dark:text-zinc-400'}`}
+            title="Align Left"
+          ><AlignLeft size={16} /></button>
+          <button 
+            type="button" 
+            onClick={() => editor.chain().focus().setTextAlign('center').run()}
+            className={`p-1.5 rounded transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-800 ${editor.isActive({ textAlign: 'center' }) ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100' : 'text-zinc-600 dark:text-zinc-400'}`}
+            title="Align Center"
+          ><AlignCenter size={16} /></button>
+          <button 
+            type="button" 
+            onClick={() => editor.chain().focus().setTextAlign('right').run()}
+            className={`p-1.5 rounded transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-800 ${editor.isActive({ textAlign: 'right' }) ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100' : 'text-zinc-600 dark:text-zinc-400'}`}
+            title="Align Right"
+          ><AlignRight size={16} /></button>
+          <button 
+            type="button" 
+            onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+            className={`p-1.5 rounded transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-800 ${editor.isActive({ textAlign: 'justify' }) ? 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100' : 'text-zinc-600 dark:text-zinc-400'}`}
+            title="Align Justify"
+          ><AlignJustify size={16} /></button>
+
           <div className="w-px h-6 bg-zinc-300 dark:bg-zinc-700 mx-1 self-center" />
           
           <button 

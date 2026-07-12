@@ -286,7 +286,7 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
 
           {blocks.map((block, index) => (
             <div key={block.id} className="studio-form-section" style={{ marginBottom: '1.5rem', position: 'relative' }}>
-              <div className="flex justify-between items-center mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-3">
+              <div className="flex justify-between items-center mb-2 border-b border-zinc-200 dark:border-zinc-800 pb-2">
                 <input
                   type="text"
                   value={block.title}
