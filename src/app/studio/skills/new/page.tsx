@@ -28,14 +28,14 @@ export default function NewSkillPage() {
   const [tagInput, setTagInput] = useState("");
 
   const [blocks, setBlocks] = useState<ContentBlock[]>([
-    { id: "1", title: "Peran (Role)", content: "" },
+    { id: "1", title: "Peran AI (AI Role)", content: "" },
     { id: "2", title: "Batasan (Scope)", content: "" },
     { id: "3", title: "Objektif (Objective)", content: "" },
   ]);
 
   const [categoryId, setCategoryId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
   const isNavigatingAway = useRef(true);
   const { showAlert } = useAlert();
 
@@ -101,7 +101,9 @@ export default function NewSkillPage() {
     }
 
     setIsSubmitting(true);
+
     try {
+      // Submit the skill data
       const res = await fetch("/api/skills", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -259,7 +261,7 @@ export default function NewSkillPage() {
 
           {blocks.map((block, index) => (
             <div key={block.id} className="studio-form-section" style={{ marginBottom: '1.5rem', position: 'relative' }}>
-              <div className="flex justify-between items-center mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-3">
+              <div className="flex justify-between items-center mb-2 border-b border-zinc-200 dark:border-zinc-800 pb-2">
                 <input
                   type="text"
                   value={block.title}
@@ -294,7 +296,7 @@ export default function NewSkillPage() {
                   newBlocks[index].content = val;
                   setBlocks(newBlocks);
                 }}
-                hideTabs={true}
+                                hideTabs={true}
                 placeholder={`Write content for ${block.title || 'this block'}...`}
               />
             </div>

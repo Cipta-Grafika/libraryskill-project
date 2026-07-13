@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { db as prisma } from "@/lib/db";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
+import { awardPointsForPublishedSkill, revokePointsForUnpublishedSkill } from "@/lib/points";
 
 export async function GET(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -62,6 +64,20 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
       },
     });
     
+    if (data.status === "PUBLISHED" && existing.status !== "PUBLISHED") {
+      await awardPointsForPublishedSkill(id, existing.authorId);
+    } else if (data.status && data.status !== "PUBLISHED" && existing.status === "PUBLISHED") {
+      await revokePointsForUnpublishedSkill(id, existing.authorId);
+    }
+    
+    await logAudit({
+      userId: session.user.id,
+      action: "UPDATE_SKILL",
+      module: "Skills",
+      oldData: existing,
+      newData: skill,
+    });
+
     return NextResponse.json(skill);
   } catch (error) {
     console.error("Failed to update skill:", error);
@@ -86,6 +102,13 @@ export async function DELETE(req: Request, context: { params: Promise<{ id: stri
     
     await prisma.skill.delete({ where: { id } });
     
+    await logAudit({
+      userId: session.user.id,
+      action: "DELETE_SKILL",
+      module: "Skills",
+      oldData: existing,
+    });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete skill:", error);

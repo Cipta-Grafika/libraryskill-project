@@ -1,7 +1,6 @@
 import { db as prisma } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { BookOpen, User } from "lucide-react";
 import modelsData from "@/data/models.json";
 import { getServerSession } from "next-auth";
@@ -56,9 +55,9 @@ export default async function PreviewSkillPage({ params }: PreviewSkillPageProps
           {/* Main Content (Left) */}
           <div className="public-skill-main">
             <div className="public-skill-card">
-              <div className="public-skill-card-header">
-                <BookOpen size={16} className="text-zinc-500" />
-                <span>{skill.slug}.md</span>
+              <div className="public-skill-card-header min-w-0">
+                <BookOpen size={16} className="text-zinc-500 shrink-0" />
+                <span className="truncate" title={`${skill.slug}.md`}>{skill.slug}.md</span>
               </div>
               
               <div className="public-skill-card-body" style={{ borderBottom: '1px solid var(--studio-border)' }}>
@@ -71,10 +70,8 @@ export default async function PreviewSkillPage({ params }: PreviewSkillPageProps
               </div>
                 
               <div className="public-skill-card-body pt-8">
-                <div className="review-prose">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {skill.content || "*No content provided.*"}
-                  </ReactMarkdown>
+                <div className="prose dark:prose-invert max-w-none">
+                  <MarkdownRenderer content={skill.content || ""} />
                 </div>
               </div>
             </div>

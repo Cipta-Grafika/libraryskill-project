@@ -2,16 +2,18 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || "default-secret-key-change-in-production" });
   const { pathname } = req.nextUrl;
 
   const isAuthPage = pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register");
   
+  const isExactOrPrefix = (path: string, prefix: string) => path === prefix || path.startsWith(`${prefix}/`);
+
   // Routes mapping based on roles
-  const isAdminRoute = pathname.startsWith("/admin");
-  const isStudioRoute = pathname.startsWith("/studio");
-  const isReviewRoute = pathname.startsWith("/review");
+  const isAdminRoute = isExactOrPrefix(pathname, "/admin");
+  const isStudioRoute = isExactOrPrefix(pathname, "/studio");
+  const isReviewRoute = isExactOrPrefix(pathname, "/review");
 
   // Helper to determine home route based on role
   const getHomeRoute = (role?: string) => {
@@ -20,6 +22,32 @@ export async function middleware(req: NextRequest) {
     if (role === "AUTHOR") return "/studio";
     return "/"; // Default fallback
   };
+
+  // Markdown Negotiation for Agents (RFC 8288 / Markdown for Agents)
+  // If an AI Agent requests text/markdown, serve the raw markdown version instead of HTML.
+  const acceptHeader = req.headers.get("accept") || "";
+  if (acceptHeader.includes("text/markdown")) {
+    if (pathname === "/") {
+      return NextResponse.rewrite(new URL(`/llms.txt`, req.url));
+    }
+    // Only apply to public content routes (docs and skills)
+    if (pathname.startsWith("/docs/")) {
+      return NextResponse.rewrite(new URL(`/raw${pathname}`, req.url));
+    }
+    // Match skill page /[categorySlug]/[skillSlug]
+    // Exclude system/auth/admin routes
+    const isSystemRoute = 
+      isExactOrPrefix(pathname, "/admin") || 
+      isExactOrPrefix(pathname, "/studio") || 
+      isExactOrPrefix(pathname, "/review") || 
+      isExactOrPrefix(pathname, "/auth") || 
+      isExactOrPrefix(pathname, "/api") || 
+      isExactOrPrefix(pathname, "/raw") || 
+      pathname === "/skills";
+    if (!isSystemRoute) {
+      return NextResponse.rewrite(new URL(`/raw${pathname}`, req.url));
+    }
+  }
 
   // 1. If user is logged in and tries to access login/register or root, redirect to their dashboard
   if (isAuthPage || pathname === "/") {

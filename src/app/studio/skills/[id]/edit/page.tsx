@@ -30,7 +30,7 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
   const [status, setStatus] = useState("DRAFT");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { showAlert } = useAlert();
+    const { showAlert } = useAlert();
 
   useEffect(() => {
     // Fetch categories
@@ -89,7 +89,7 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
         
         if (parsedBlocks.length === 0) {
           parsedBlocks.push(
-            { id: "1", title: "Peran (Role)", content: "" },
+            { id: "1", title: "Peran AI (AI Role)", content: "" },
             { id: "2", title: "Batasan (Scope)", content: "" },
             { id: "3", title: "Objektif (Objective)", content: "" }
           );
@@ -120,9 +120,9 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
     }
 
     setIsSubmitting(true);
-    const finalStatus = newStatus || status;
-    
     try {
+      // Submit the skill data
+      const finalStatus = newStatus || status;
       const res = await fetch(`/api/skills/${params.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -286,7 +286,7 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
 
           {blocks.map((block, index) => (
             <div key={block.id} className="studio-form-section" style={{ marginBottom: '1.5rem', position: 'relative' }}>
-              <div className="flex justify-between items-center mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-3">
+              <div className="flex justify-between items-center mb-2 border-b border-zinc-200 dark:border-zinc-800 pb-2">
                 <input
                   type="text"
                   value={block.title}
@@ -321,7 +321,7 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
                   newBlocks[index].content = val;
                   setBlocks(newBlocks);
                 }}
-                hideTabs={true}
+                                hideTabs={true}
                 placeholder={`Write content for ${block.title || 'this block'}...`}
               />
             </div>

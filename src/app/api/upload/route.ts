@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     const path = join(uploadDir, filename);
     await writeFile(path, buffer);
 
-    // Return the URL
+    // Return the relative URL for consistency in Markdown and to avoid env variable caching issues
     return NextResponse.json({ 
       url: `/upload/img/${filename}`,
       success: true 

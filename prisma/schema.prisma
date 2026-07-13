@@ -12,6 +12,11 @@ enum UserRole {
   SUPERADMIN
 }
 
+enum PointStatus {
+  VALIDATED
+  INVALIDATED
+}
+
 enum SkillStatus {
   DRAFT
   IN_REVIEW
@@ -22,18 +27,22 @@ enum SkillStatus {
 }
 
 model User {
-  id       String   @id @default(cuid())
-  name     String
-  email    String   @unique
-  password String?
-  role     UserRole @default(AUTHOR)
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String?
+  role      UserRole @default(AUTHOR)
+  moderator Boolean? @default(false)
 
   bio  String?
   slug String  @unique
 
-  skills Skill[]
-  docs   Doc[]    @relation("UserDocs")
-  reviews Review[] @relation("ReviewerReviews")
+  skills       Skill[]
+  docs         Doc[]          @relation("UserDocs")
+  reviews      Review[]       @relation("ReviewerReviews")
+  auditLogs    AuditLog[]
+  pointHistory PointHistory[]
+  point        UserPoint?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -58,7 +67,8 @@ model Skill {
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
-  reviews    Review[]
+  reviews      Review[]
+  pointHistory PointHistory[]
 
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
@@ -72,15 +82,15 @@ model Skill {
 }
 
 model Category {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  slug        String   @unique
-  description String?  @db.Text
-  
-  skills      Skill[]
+  slug        String  @unique
+  description String? @db.Text
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  skills Skill[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("skill_categories")
 }
@@ -101,40 +111,100 @@ model Review {
 }
 
 model Series {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   title       String
-  slug        String   @unique
-  description String?  @db.Text
+  slug        String  @unique
+  description String? @db.Text
 
-  docs        Doc[]
+  docs Doc[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("series")
 }
 
 model Doc {
-  id          String      @id @default(cuid())
-  title       String
-  slug        String      @unique
-  
+  id    String @id @default(cuid())
+  title String
+  slug  String @unique
+
   seriesSlug  String?
-  series      Series?     @relation(fields: [seriesSlug], references: [slug], onDelete: SetNull)
+  series      Series? @relation(fields: [seriesSlug], references: [slug], onDelete: SetNull)
   seriesOrder Int?
 
   description String?     @db.Text
   content     String      @db.Text
   status      SkillStatus @default(DRAFT)
 
-  authorId    String
-  author      User        @relation("UserDocs", fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+  author   User   @relation("UserDocs", fields: [authorId], references: [id], onDelete: Cascade)
 
   publishedAt DateTime?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@index([seriesSlug])
   @@index([authorId])
   @@map("docs")
+}
+
+model AuditLog {
+  id     String  @id @default(cuid())
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  action String // e.g., LOGIN, CREATE_USER, UPDATE_PROFILE
+  module String // e.g., Skills, Users, Logs, Docs
+
+  oldData Json? // Using Json for structured data responses
+  newData Json?
+
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([action])
+  @@index([module])
+  @@map("logs")
+}
+
+model PointHistory {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  skillId String?
+  skill   Skill?  @relation(fields: [skillId], references: [id], onDelete: SetNull)
+
+  amount Int
+  status PointStatus @default(VALIDATED)
+
+  createdAt DateTime @default(now())
+
+  userPoint UserPoint?
+
+  @@index([userId])
+  @@index([skillId])
+  @@map("point_history")
+}
+
+model UserPoint {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  pointHistoryId String?       @unique
+  pointHistory   PointHistory? @relation(fields: [pointHistoryId], references: [id], onDelete: SetNull)
+
+  totalPoint Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("points")
 }

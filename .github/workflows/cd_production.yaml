@@ -1,0 +1,64 @@
+name: Continuous Deployment Production
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy Frontend & Backend to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            # Hentikan eksekusi script jika ada perintah yang error
+            set -e
+            
+            # Pindah ke direktori proyek production di VPS
+            echo "Memulai proses deployment ke server..."
+            cd /var/www/libraryskill-prod
+            
+            # Perbaiki error Git "dubious ownership"
+            git config --global --add safe.directory /var/www/libraryskill-prod
+            
+            # 1. Tarik pembaruan kode terbaru dari branch master (Secure)
+            echo "Pulling latest code from master..."
+            git fetch origin master
+            git checkout master
+            git reset --hard origin/master
+            
+            # 2. Setup NVM & Install dependensi Javascript (NPM)
+            echo "Installing npm dependencies..."
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            export PATH=$PATH:/usr/local/bin:/usr/bin
+            
+            npm install
+            
+            # 3. Generate Prisma Client
+            echo "Generating Prisma Client..."
+            npx prisma generate
+            
+            # 4. Build aplikasi Next.js
+            echo "Building Next.js application..."
+            npm run build
+            
+            # 5. Jalankan Migrasi Database
+            # Menggunakan migrate deploy untuk environment production agar struktur database ter-update
+            echo "Running database migrations..."
+            npx prisma migrate deploy
+            
+            # 6. Reload Next.js server via PM2
+            # Menggunakan reload untuk meminimalisir downtime (zero-downtime reloads), 
+            # jika gagal akan otomatis fallback ke restart
+            echo "Reloading application via PM2..."
+            pm2 reload libraryskill || pm2 restart libraryskill || true
+            
+            echo "Deployment completed successfully! Sistem berhasil di-update."

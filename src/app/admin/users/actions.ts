@@ -4,6 +4,9 @@ import { db as prisma } from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import { logAudit } from "@/lib/audit";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function createUser(formData: FormData) {
   try {
@@ -12,6 +15,7 @@ export async function createUser(formData: FormData) {
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
     const role = formData.get("role") as "AUTHOR" | "REVIEWER" | "SUPERADMIN";
+    const moderator = formData.get("moderator") === "on";
 
     if (!name || !email || !password || !confirmPassword || !role) {
       return { error: "All fields are required" };
@@ -34,14 +38,23 @@ export async function createUser(formData: FormData) {
     // Generate a basic slug from name
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now().toString().slice(-4);
 
-    await prisma.user.create({
+    const newUser = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
         role,
         slug,
+        moderator,
       },
+    });
+
+    const session = await getServerSession(authOptions);
+    await logAudit({
+      userId: session?.user?.id,
+      action: "CREATE_USER",
+      module: "Users",
+      newData: { ...newUser, password: "[REDACTED]" },
     });
 
     revalidatePath("/admin/users");
@@ -59,6 +72,7 @@ export async function updateUser(id: string, formData: FormData) {
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
     const role = formData.get("role") as "AUTHOR" | "REVIEWER" | "SUPERADMIN";
+    const moderator = formData.get("moderator") === "on";
 
     if (!name || !email || !role) {
       return { error: "Name, email, and role are required" };
@@ -81,6 +95,7 @@ export async function updateUser(id: string, formData: FormData) {
       name,
       email,
       role,
+      moderator,
       updatedAt: new Date(), // Explicitly update the timestamp
     };
 
@@ -88,9 +103,20 @@ export async function updateUser(id: string, formData: FormData) {
       dataToUpdate.password = await bcrypt.hash(password, 10);
     }
 
-    await prisma.user.update({
+    const oldUser = await prisma.user.findUnique({ where: { id } });
+    
+    const updatedUser = await prisma.user.update({
       where: { id },
       data: dataToUpdate,
+    });
+
+    const session = await getServerSession(authOptions);
+    await logAudit({
+      userId: session?.user?.id,
+      action: "UPDATE_USER",
+      module: "Users",
+      oldData: oldUser ? { ...oldUser, password: "[REDACTED]" } : null,
+      newData: { ...updatedUser, password: "[REDACTED]" },
     });
 
     revalidatePath("/admin/users");
@@ -103,8 +129,6 @@ export async function updateUser(id: string, formData: FormData) {
 
 export async function deleteUser(id: string) {
   try {
-    const { getServerSession } = await import("next-auth/next");
-    const { authOptions } = await import("@/lib/auth");
     const session = await getServerSession(authOptions);
     
     if (!session || session.user?.role !== "SUPERADMIN") {
@@ -115,8 +139,17 @@ export async function deleteUser(id: string) {
       return { error: "You cannot delete yourself." };
     }
 
+    const oldUser = await prisma.user.findUnique({ where: { id } });
+
     await prisma.user.delete({
       where: { id },
+    });
+
+    await logAudit({
+      userId: session.user.id,
+      action: "DELETE_USER",
+      module: "Users",
+      oldData: oldUser ? { ...oldUser, password: "[REDACTED]" } : null,
     });
 
     revalidatePath("/admin/users");

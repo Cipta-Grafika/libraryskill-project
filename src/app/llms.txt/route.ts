@@ -14,16 +14,13 @@ export async function GET() {
     },
   });
 
-  const header = `# LibrarySkill - Prompts and Documentation Hub (Pustaka Skills)
+  const header = `# LibrarySkill
 
-This site contains published prompts, workflows, and documentation skills designed to enhance productivity and standardisation. 
-This \`llms.txt\` file serves as an index of all publicly available skills on this platform for AI assistants and crawlers.
+> A public skill library for structured AI Agent prompts, reusable workflows, and LLM-readable documentation.
 
-Situs ini berisi koleksi prompt, alur kerja (workflows), dan dokumentasi *skills* yang dipublikasikan untuk meningkatkan produktivitas dan standardisasi. 
-File \`llms.txt\` ini berfungsi sebagai indeks dari seluruh *skills* yang tersedia secara publik di platform ini, yang ditujukan khusus untuk dibaca oleh asisten AI dan sistem penelusuran (crawlers).
+LibrarySkill provides reviewed Markdown-based skill specifications for AI Agents and LLMs. Each skill is designed to support consistent output, clear constraints, and reusable prompt workflows.
 
 ## Published Skills
-
 `;
 
   // Group skills dynamically by category
@@ -35,20 +32,20 @@ File \`llms.txt\` ini berfungsi sebagai indeks dari seluruh *skills* yang tersed
   }, {} as Record<string, typeof skills>);
 
   const skillsList = Object.entries(groupedSkills).map(([catName, catSkills]) => {
-    let section = `### Category: ${catName}\n\n`;
+    let section = `\n### ${catName}\n\n`;
     section += catSkills.map((skill) => {
       const catSlug = skill.category?.slug || "uncategorized";
-      return `- [${skill.title}](${baseUrl}/${catSlug}/${skill.slug}): ${skill.description || "No description"}. (Raw Markdown: [${baseUrl}/raw/${catSlug}/${skill.slug}.md](${baseUrl}/raw/${catSlug}/${skill.slug}.md))`;
+      return `- [${skill.title}](${baseUrl}/raw/${catSlug}/${skill.slug}.md): ${skill.description || "No description provided."}`;
     }).join("\n");
     return section;
-  }).join("\n\n");
+  }).join("\n");
 
   const content = header + skillsList + "\n";
 
   return new NextResponse(content, {
     status: 200,
     headers: {
-      "Content-Type": "text/plain; charset=utf-8",
+      "Content-Type": "text/markdown; charset=utf-8",
       "Cache-Control": "public, max-age=3600, s-maxage=86400",
     },
   });

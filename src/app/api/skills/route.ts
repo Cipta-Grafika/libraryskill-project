@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db as prisma } from "@/lib/db";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 
 export async function GET() {
   try {
@@ -53,6 +54,13 @@ export async function POST(req: Request) {
       },
     });
     
+    await logAudit({
+      userId: session.user.id,
+      action: "CREATE_SKILL",
+      module: "Skills",
+      newData: skill,
+    });
+
     return NextResponse.json(skill);
   } catch (error) {
     console.error("Failed to create skill:", error);

@@ -1,7 +1,6 @@
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { formatDistanceToNow } from "date-fns";
 import { User, Clock } from "lucide-react";
 import Link from "next/link";
@@ -100,10 +99,8 @@ export default async function AdminSkillDetailPage({ params }: AdminSkillDetailP
                 )}
               </header>
 
-              <div className="review-prose">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {skill.content || "*No content provided.*"}
-                </ReactMarkdown>
+              <div className="prose dark:prose-invert max-w-none">
+                <MarkdownRenderer content={skill.content || ""} />
               </div>
             </article>
           </div>

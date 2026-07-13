@@ -1,14 +1,13 @@
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { BackToTop } from "@/components/BackToTop";
 import { PageBanner } from "@/components/PageBanner";
 import Link from "next/link";
-import { BookOpen, User } from "lucide-react";
+import { BookOpen, User, Download } from "lucide-react";
 import modelsData from "@/data/models.json";
 
 interface PublicSkillPageProps {
@@ -64,6 +63,9 @@ export async function generateMetadata(
     },
     alternates: {
       canonical: `/${resolvedParams.categorySlug}/${resolvedParams.skillSlug}`,
+      types: {
+        "text/markdown": `${process.env.NEXT_PUBLIC_APP_URL || 'https://libraryskill.com'}/raw/${resolvedParams.categorySlug}/${resolvedParams.skillSlug}.md`
+      }
     },
   };
 }
@@ -90,20 +92,47 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
     notFound();
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": skill.title,
+    "author": {
+      "@type": "Person",
+      "name": skill.author.name
+    },
+    "about": [
+      ...skill.tags,
+      "AI Agent Skill"
+    ],
+    "inLanguage": "id-ID"
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <PageBanner backHref="/skills" backText="Back to Skills" />
+      <PageBanner backHref="/skills" backText="Back to Skills">
+        <a 
+          href={`/raw/${skill.category?.slug}/${skill.slug}.md`} 
+          download={`${skill.title}-${skill.slug}.md`} 
+          className="skills-btn skills-btn-accent-outline skills-btn-sm"
+        >
+          <Download size={14}/> Download MD
+        </a>
+      </PageBanner>
       
       <main className="public-skill-container flex-grow mt-4 md:mt-8">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <div className="public-skill-layout">
           
           {/* Main Content (Left) */}
           <div className="public-skill-main">
             <div className="public-skill-card">
-              <div className="public-skill-card-header">
-                <BookOpen size={16} className="text-zinc-500" />
-                <span>{skill.slug}.md</span>
+              <div className="public-skill-card-header min-w-0">
+                <BookOpen size={16} className="text-zinc-500 shrink-0" />
+                <span className="truncate" title={`${skill.slug}.md`}>{skill.slug}.md</span>
               </div>
               
               <div className="public-skill-card-body" style={{ borderBottom: '1px solid var(--studio-border)' }}>
@@ -116,10 +145,8 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
               </div>
                 
               <div className="public-skill-card-body pt-8">
-                <div className="review-prose">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {skill.content || "*No content provided.*"}
-                  </ReactMarkdown>
+                <div className="prose dark:prose-invert max-w-none">
+                  <MarkdownRenderer content={skill.content || ""} />
                 </div>
               </div>
             </div>
@@ -181,6 +208,11 @@ export default async function PublicSkillPage({ params }: PublicSkillPageProps) 
                   <Link href={`/raw/${skill.category?.slug}/${skill.slug}.md`} target="_blank" className="text-primary-600 hover:underline">
                     View Raw Markdown
                   </Link>
+                </p>
+                <p className="public-sidebar-text">
+                  <a href={`/raw/${skill.category?.slug}/${skill.slug}.md`} download={`${skill.title}-${skill.slug}.md`} className="text-primary-600 hover:underline">
+                    Download Skill
+                  </a>
                 </p>
               </div>
 

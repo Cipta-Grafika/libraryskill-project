@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db as prisma } from "@/lib/db";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 
 export async function PUT(req: Request) {
   try {
@@ -15,6 +16,13 @@ export async function PUT(req: Request) {
     const user = await prisma.user.update({
       where: { id: session.user.id },
       data: { bio },
+    });
+    
+    await logAudit({
+      userId: session.user.id,
+      action: "UPDATE_PROFILE_BIO",
+      module: "Users",
+      newData: { bio },
     });
     
     return NextResponse.json({ success: true, bio: user.bio });

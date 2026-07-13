@@ -4,7 +4,9 @@ import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { logAudit } from "@/lib/audit";
 import { SkillStatus } from "@prisma/client";
+import { awardPointsForPublishedSkill, revokePointsForUnpublishedSkill } from "@/lib/points";
 
 export async function submitReview(formData: FormData) {
   const session = await getServerSession(authOptions);
@@ -35,6 +37,15 @@ export async function submitReview(formData: FormData) {
   // Assuming if approved, it's PUBLISHED. If rejected, it's REJECTED.
   const newSkillStatus: SkillStatus = status === "APPROVE" ? "PUBLISHED" : "REJECTED";
 
+  const skill = await db.skill.findUnique({
+    where: { id: skillId },
+    select: { authorId: true }
+  });
+
+  if (!skill) {
+    throw new Error("Skill not found");
+  }
+
   try {
     // Transaction to update skill and add review record
     await db.$transaction([
@@ -54,6 +65,24 @@ export async function submitReview(formData: FormData) {
         }
       })
     ]);
+
+    if (newSkillStatus === "PUBLISHED") {
+      await awardPointsForPublishedSkill(skillId, skill.authorId);
+    } else {
+      await revokePointsForUnpublishedSkill(skillId, skill.authorId);
+    }
+
+    await logAudit({
+      userId: session.user.id,
+      action: "SUBMIT_REVIEW",
+      module: "Reviews",
+      newData: {
+        skillId,
+        status,
+        noteMarkdown,
+        newSkillStatus
+      },
+    });
 
   } catch (error) {
     console.error("Failed to submit review:", error);

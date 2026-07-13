@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { ThemeToggle } from "./ThemeToggle";
-import { User, ChevronRight, Users, Grid, BookOpen, ScrollText, PlusCircle, Inbox, PlusSquare, Menu, X, Settings, Compass, Layers } from "lucide-react";
+import { User, ChevronRight, Users, Grid, BookOpen, ScrollText, PlusCircle, Inbox, PlusSquare, Menu, X, Settings, Compass, Layers, Trophy } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,6 +14,7 @@ export function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [authorPoints, setAuthorPoints] = useState<number>(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -30,6 +31,19 @@ export function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (session?.user?.role === "AUTHOR") {
+      fetch("/api/users/me/points")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.points !== undefined) {
+            setAuthorPoints(data.points);
+          }
+        })
+        .catch(err => console.error("Failed to fetch points:", err));
+    }
+  }, [session?.user?.role]);
 
   const role = session?.user?.role;
 
@@ -79,6 +93,9 @@ export function Header() {
                     <Link href="/docs" className={`mobile-nav-link ${pathname.includes('/docs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                       <BookOpen size={16} /> <span>Docs</span>
                     </Link>
+                    <Link href="/leaderboards" className={`mobile-nav-link ${pathname.includes('/leaderboards') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Trophy size={16} /> <span>Leaderboards</span>
+                    </Link>
                   </>
                 )}
                 {role === "SUPERADMIN" && (
@@ -101,6 +118,9 @@ export function Header() {
                     <Link href="/admin/audit-logs" className={`mobile-nav-link ${pathname.includes('/admin/audit-logs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                       <ScrollText size={16} /> Logs
                     </Link>
+                    <Link href="/admin/points" className={`mobile-nav-link ${pathname.includes('/admin/points') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Trophy size={16} /> Points
+                    </Link>
                   </>
                 )}
                 {role === "REVIEWER" && (
@@ -114,6 +134,12 @@ export function Header() {
                     <Link href="/skills" className={`mobile-nav-link ${pathname === '/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                       <Compass size={16} /> All Skills
                     </Link>
+                    <Link href="/leaderboards" className={`mobile-nav-link ${pathname.includes('/leaderboards') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Trophy size={16} /> Leaderboards
+                    </Link>
+                    <Link href="/docs" className={`mobile-nav-link ${pathname.includes('/docs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <BookOpen size={16} /> Docs
+                    </Link>
                   </>
                 )}
                 {role === "AUTHOR" && (
@@ -126,6 +152,12 @@ export function Header() {
                     </Link>
                     <Link href="/skills" className={`mobile-nav-link ${pathname === '/skills' ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
                       <Compass size={16} /> All Skills
+                    </Link>
+                    <Link href="/leaderboards" className={`mobile-nav-link ${pathname.includes('/leaderboards') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <Trophy size={16} /> Leaderboards
+                    </Link>
+                    <Link href="/docs" className={`mobile-nav-link ${pathname.includes('/docs') ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+                      <BookOpen size={16} /> Docs
                     </Link>
                   </>
                 )}
@@ -142,6 +174,9 @@ export function Header() {
                 </Link>
                 <Link href="/docs" className={`header-nav-link ${pathname.includes('/docs') ? 'active' : ''}`}>
                   <BookOpen size={16} /> <span>Docs</span>
+                </Link>
+                <Link href="/leaderboards" className={`header-nav-link ${pathname.includes('/leaderboards') ? 'active' : ''}`}>
+                  <Trophy size={16} /> <span>Leaderboards</span>
                 </Link>
               </>
             )}
@@ -165,6 +200,9 @@ export function Header() {
                 <Link href="/admin/audit-logs" className={`header-nav-link ${pathname.includes('/admin/audit-logs') ? 'active' : ''}`}>
                   <ScrollText size={16} /> Logs
                 </Link>
+                <Link href="/admin/points" className={`header-nav-link ${pathname.includes('/admin/points') ? 'active' : ''}`}>
+                  <Trophy size={16} /> Points
+                </Link>
               </>
             )}
             {role === "REVIEWER" && (
@@ -178,6 +216,12 @@ export function Header() {
                 <Link href="/skills" className={`header-nav-link ${pathname === '/skills' ? 'active' : ''}`}>
                   <Compass size={16} /> All Skills
                 </Link>
+                <Link href="/leaderboards" className={`header-nav-link ${pathname.includes('/leaderboards') ? 'active' : ''}`}>
+                  <Trophy size={16} /> Leaderboards
+                </Link>
+                <Link href="/docs" className={`header-nav-link ${pathname.includes('/docs') ? 'active' : ''}`}>
+                  <BookOpen size={16} /> Docs
+                </Link>
               </>
             )}
             {role === "AUTHOR" && (
@@ -190,6 +234,12 @@ export function Header() {
                 </Link>
                 <Link href="/skills" className={`header-nav-link ${pathname === '/skills' ? 'active' : ''}`}>
                   <Compass size={16} /> All Skills
+                </Link>
+                <Link href="/leaderboards" className={`header-nav-link ${pathname.includes('/leaderboards') ? 'active' : ''}`}>
+                  <Trophy size={16} /> Leaderboards
+                </Link>
+                <Link href="/docs" className={`header-nav-link ${pathname.includes('/docs') ? 'active' : ''}`}>
+                  <BookOpen size={16} /> Docs
                 </Link>
               </>
             )}
@@ -222,6 +272,15 @@ export function Header() {
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{session?.user?.email}</p>
                   </div>
                   <div className="dropdown-divider"></div>
+
+                  {role === "AUTHOR" && (
+                    <div className="dropdown-item flex items-center justify-between cursor-default">
+                      <div className="flex items-center gap-2">
+                        <Trophy size={14} color="var(--primary)" fill="var(--primary)" />
+                        <span className="font-bold">{authorPoints} Points</span>
+                      </div>
+                    </div>
+                  )}
 
                   <button
                     onClick={() => {
