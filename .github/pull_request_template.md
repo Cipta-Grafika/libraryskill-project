@@ -33,6 +33,8 @@
 - [ ] Studio Dashboard (Authoring / Markdown Editor)
 - [ ] Review System (Reviewer Queue / Approval)
 - [ ] Admin Dashboard (Categories / Users Management)
+- [ ] Docs System (Documentation pages)
+- [ ] Logs (Audit Log Pages)
 - [ ] Search & Filtering
 - [ ] Global Layout & Navigation
 - [ ] Others _____
